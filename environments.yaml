@@ -1,0 +1,4 @@
+environments:
+  local:
+    values:
+      kubeContext: minikube

@@ -1,0 +1,6 @@
+---
+namespaces:
+  - name: jenkins
+    create: true
+  - name: devops
+    create: true
