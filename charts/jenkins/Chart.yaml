@@ -1,0 +1,6 @@
+apiVersion: v2
+name: jenkins
+description: Minimal Jenkins chart for local Minikube
+type: application
+version: 0.1.0
+appVersion: "2.440.1"  # Use latest LTS
