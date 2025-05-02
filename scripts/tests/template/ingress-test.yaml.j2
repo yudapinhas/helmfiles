@@ -1,0 +1,100 @@
+#https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: banana-app
+  labels:
+    app: banana
+spec:
+  imagePullSecrets:
+    - name: dockerlogin-cred
+  containers:
+    - name: banana-app
+      image: hashicorp/http-echo
+      args:
+        - "-text=banana"
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: banana-service
+spec:
+  selector:
+    app: banana
+  ports:
+    - port: 5678 # Default port for image
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    kubernetes.io/ingress.class:  ingress-external
+  name: banana-ingress
+  namespace: default
+spec:
+  rules:
+  - host: banana-{{CLUSTER}}.kenshoo.com
+    http:
+      paths:
+      - path: /banana(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: banana-service
+            port: 
+              number: 5678
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: apple-app
+  labels:
+    app: apple
+spec:
+  imagePullSecrets:
+    - name: dockerlogin-cred
+  containers:
+    - name: apple-app
+      image: hashicorp/http-echo
+      args:
+        - "-text=apple"
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: apple-service
+spec:
+  selector:
+    app: apple
+  ports:
+    - port: 5678 # Default port for image
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    kubernetes.io/ingress.class:  ingress-internal
+  name: apple-ingress
+  namespace: default
+spec:
+  rules:
+  - host: apple-{{CLUSTER}}.{{INTERNAL_DOMAIN}}
+    http:
+      paths:
+      - path: /apple(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: apple-service
+            port: 
+              number: 5678
+---
+
