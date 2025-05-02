@@ -1,0 +1,17 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-internal-ingress-record-job
+  labels:
+spec:
+  template:
+    spec:
+      imagePullSecrets:
+      - name: dockerlogin-cred
+      containers:
+      - name: test-internal-ingress-record-job
+        image: alpine
+        command: ["sh", "-c", "nslookup apple-{{CLUSTER}}.{{INTERNAL_DOMAIN}} && nslookup apple-alb-{{CLUSTER}}.{{INTERNAL_DOMAIN}}"]
+      restartPolicy: "OnFailure"
+  backoffLimit: 400

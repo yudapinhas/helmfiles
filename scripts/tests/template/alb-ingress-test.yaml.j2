@@ -1,0 +1,114 @@
+#https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: apple-app-alb
+  labels:
+    app: apple-alb
+spec:
+  imagePullSecrets:
+    - name: dockerlogin-cred
+  containers:
+    - name: apple-app-alb
+      image: hashicorp/http-echo
+      args:
+        - "-text=apple"
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: apple-alb-service
+spec:
+  selector:
+    app: apple-alb
+  ports:
+    - port: 5678 # Default port for image
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/group.name: {{ALB_INT}}
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+  labels:
+    app: apple-alb
+  name: apple-alb
+spec:
+  rules:
+  - host: apple-alb-{{CLUSTER}}.{{INTERNAL_DOMAIN}}
+    http:
+      paths:
+      - backend:
+          service:
+            name: apple-alb-service
+            port:
+              number: 5678
+        pathType: ImplementationSpecific
+status:
+  loadBalancer: {}
+
+
+#https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: banana-app-alb
+  labels:
+    app: banana-alb
+spec:
+  imagePullSecrets:
+    - name: dockerlogin-cred
+  containers:
+    - name: banana-app-alb
+      image: hashicorp/http-echo
+      args:
+        - "-text=banana"
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: banana-alb-service
+spec:
+  selector:
+    app: banana-alb
+  ports:
+    - port: 5678 # Default port for image
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/group.name: {{ALB_EXT}}
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+  labels:
+    app: banana-alb
+  name: banana-alb
+spec:
+  rules:
+  - host: banana-alb-{{CLUSTER}}.kenshoo.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: banana-alb-service
+            port:
+              number: 5678
+        pathType: ImplementationSpecific
+status:
+  loadBalancer: {}
