@@ -1,0 +1,6 @@
+apiVersion: v2
+name: namespaces
+description: A chart to manage Kubernetes namespaces
+version: 0.1.0
+appVersion: "1.0"
+type: application

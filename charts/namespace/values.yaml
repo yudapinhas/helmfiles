@@ -1,0 +1,21 @@
+# Default values for namespace.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+nameOverride: ""
+fullnameOverride: ""
+
+# namespaces:
+#  - name: name1
+#    create: "true"
+#    limit_cpu: 1
+#    limit_mem: "1G"
+#    request_cpu: 0.5
+#    request_mem: "1.5G"
+#    labels:
+#     keylabel: value
+#  - name: name2
+#    limit_cpu: 2
+#    limit_mem: "1G"
+#    request_cpu: 0.5
+#    request_mem: "1.5G"
+
