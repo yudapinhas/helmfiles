@@ -2,26 +2,83 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: jenkins-casc-config
-  namespace: {{ .Release.Namespace }}
+  namespace: jenkins
 data:
   jenkins.yaml: |
     jenkins:
       systemMessage: "Configured by JCasC"
       numExecutors: 2
       clouds: []
+    credentials:
+      system:
+        domainCredentials:
+          - credentials:
+              - basicSSHUserPrivateKey:
+                  scope: GLOBAL
+                  id: "github-ssh-key"
+                  username: "git"
+                  description: "SSH key for GitHub access"
+                  privateKeySource:
+                    directEntry:
+                      privateKey: |
+                        -----BEGIN OPENSSH PRIVATE KEY-----
+                        b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+                        QyNTUxOQAAACBl90yzhbOhDuWLP0t3DS1K0M3bH7kJF0D82IdN60lh4gAAAJjp8zeW6fM3
+                        lgAAAAtzc2gtZWQyNTUxOQAAACBl90yzhbOhDuWLP0t3DS1K0M3bH7kJF0D82IdN60lh4g
+                        AAAEClbvTucEOEGJWv3CuRMIUT9PNl+5Z2tejwgjLzF3rc22X3TLOFs6EO5Ys/S3cNLUrQ
+                        zdsfuQkXQPzYh03rSWHiAAAAEXl1ZGE2OTFAZ21haWwuY29tAQIDBA==
+                        -----END OPENSSH PRIVATE KEY-----
     jobs:
       - script: >
-          job('seed-ci-cd-pipelines') {
-            description('Generates CI pull‑request and CD release jobs from repos.yaml')
-            scm { none() }
-            steps {
-              jobDsl {
-                // load the DSL script straight from the shared dsl ConfigMap
-                scriptText new File('/var/jenkins_home/dsl/seedJob.groovy').text
-                removedJobAction('IGNORE')
-                ignoreExisting(false)
-                lookupStrategy('JENKINS_ROOT')
-                additionalClasspath('/var/jenkins_home/dsl')
+          pipelineJob('seed-ci-cd-pipelines') {
+            description('Generates pull-request and release jobs')
+            definition {
+              cps {
+                script("""
+                  pipeline {
+                      agent any
+
+                      stages {
+                          stage('Prepare DSL Scripts') {
+                              steps {
+                                  echo 'Copying DSL scripts from mounted directory...'
+                                  sh 'mkdir -p dsl && cp /var/jenkins_home/dsl/*.groovy dsl/'
+                              }
+                          }
+
+                          stage('Run Job DSL') {
+                              steps {
+                                  echo 'Running Job DSL scripts...'
+                                  jobDsl targets: 'dsl/*.groovy',
+                                         removedJobAction: 'IGNORE',
+                                         ignoreExisting: false,
+                                         lookupStrategy: 'JENKINS_ROOT'
+                              }
+                          }
+                      }
+
+                      post {
+                          always {
+                              echo 'Seed job finished.'
+                          }
+                      }
+                  }
+                """)
+                sandbox(true)
               }
             }
           }
+    unclassified:
+      globalLibraries:
+        libraries:
+          - name: "netgod-jenkins-shared-lib"
+            defaultVersion: "master"
+            implicit: true
+            allowVersionOverride: true
+            includeInChangesets: false
+            retriever:
+              modernSCM:
+                scm:
+                  git:
+                    remote: "git@github.com:yudapinhas/jenkins-shared-lib.git"
+                    credentialsId: "github-ssh-key"

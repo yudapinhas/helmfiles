@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-dsl-scripts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+data:
+  seedJob.groovy: |
+{{ .Files.Get "jenkins-dsl/seedJob.groovy" | indent 4 }}
+  repos.groovy: |-
+{{ .Files.Get "jenkins-dsl/repos.groovy" | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disable-setup-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+  disable-setup.groovy: |
+    import jenkins.model.*
+    Jenkins.instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-plugin-list
+  namespace: {{ .Release.Namespace }}
+data:
+  plugins.txt: |
+    configuration-as-code:latest
+    workflow-job:latest
+    workflow-aggregator:latest
+    job-dsl:latest
+    git:latest
+    blueocean
+    ssh-credentials:latest
+    ansicolor:latest
+    timestamper:latest
+    ws-cleanup
+    email-ext:latest
