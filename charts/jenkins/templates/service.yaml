@@ -9,6 +9,6 @@ spec:
   ports:
     - port: {{ .Values.controller.service.port | default 8080 }}
       targetPort: 8080
-{{- if eq .Values.controller.service.type "NodePort" }}
+        {{- if eq .Values.controller.service.type "NodePort" }}
       nodePort: {{ .Values.controller.service.nodePort | default 30080 }}
-{{- end }}
+        {{- end }}

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disable-setup-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+  disable-setup.groovy: |
+    import jenkins.model.*
+    Jenkins.instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
