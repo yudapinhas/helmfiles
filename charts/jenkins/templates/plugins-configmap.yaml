@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-plugin-list
+  namespace: {{ .Release.Namespace }}
+data:
+  plugins.txt: |
+    configuration-as-code:latest
+    workflow-job:latest
+    workflow-aggregator:latest
+    job-dsl:latest
+    git:latest
+    blueocean

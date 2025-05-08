@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-casc-config
+  namespace: {{ .Release.Namespace }}
+data:
+  jenkins.yaml: |
+    jenkins:
+      systemMessage: "Configured by JCasC"
+      numExecutors: 2
+      clouds: []
+    jobs:
+      - script: >
+          job('seed-ci-cd-pipelines') {
+            description('Generates CI pull‑request and CD release jobs from repos.yaml')
+            scm { none() }
+            steps {
+              jobDsl {
+                // load the DSL script straight from the shared dsl ConfigMap
+                scriptText new File('/var/jenkins_home/dsl/seedJob.groovy').text
+                removedJobAction('IGNORE')
+                ignoreExisting(false)
+                lookupStrategy('JENKINS_ROOT')
+                additionalClasspath('/var/jenkins_home/dsl')
+              }
+            }
+          }

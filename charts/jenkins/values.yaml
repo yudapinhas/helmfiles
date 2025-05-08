@@ -1,9 +1,24 @@
 controller:
+  enabled: true
   image: jenkins/jenkins
   tag: lts
   adminUser: admin
   adminPassword: admin
+  javaOpts: "-Djenkins.install.runSetupWizard=false -Djenkins.plugin.startup.timeout=300"
   service:
     type: NodePort
     port: 8080
     nodePort: 30080
+  sidecars:
+    configAutoReload:
+      enabled: true
+  volumes:
+    - name: jenkins-dsl-scripts
+      configMap:
+        name: jenkins-dsl-scripts
+  volumeMounts:
+    - name: jenkins-dsl-scripts
+      mountPath: /var/jenkins_home/dsl
+  initScripts:
+    - name: disable-setup.groovy
+      configMap: disable-setup-configmap
