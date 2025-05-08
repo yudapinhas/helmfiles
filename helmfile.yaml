@@ -19,3 +19,8 @@ releases:
     namespace: kube-system
     values:
       - ./values/{{ .Environment.Name }}/kenshoo-namespace.yaml
+  - name: jenkins-secrets
+    chart: ./charts/secrets
+    namespace: jenkins
+    values:
+      - ./values/{{ .Environment.Name }}/jenkins-secrets.yaml

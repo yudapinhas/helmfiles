@@ -14,6 +14,34 @@ spec:
       labels:
         app: jenkins
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000 
+      # ─────────────────────────────────────────────
+      # ❶  Init‑container: download plugins once
+      # ─────────────────────────────────────────────
+      initContainers:
+      - name: install-plugins
+        image: "jenkins/jenkins:lts"
+        command:
+          - bash
+          - -c
+          - |
+            set -eux
+            mkdir -p /var/jenkins_home/plugins
+            jenkins-plugin-cli \
+              --plugin-file /plugins/plugins.txt \
+              --plugin-download-directory /var/jenkins_home/plugins \
+              --verbose
+        volumeMounts: 
+          - name: plugin-list
+            mountPath: /plugins
+          - name: jenkins-home
+            mountPath: /var/jenkins_home
+          - name: git-ssh
+            mountPath: /var/jenkins_home/.ssh
+            readOnly: true
       containers:
         - name: jenkins
           image: "{{ .Values.controller.image }}:{{ .Values.controller.tag }}"
@@ -21,12 +49,38 @@ spec:
             - containerPort: 8080
           env:
             - name: JENKINS_ADMIN_ID
-              value: "{{ .Values.controller.adminUser }}"
+              value: {{ .Values.controller.adminUser }}
             - name: JENKINS_ADMIN_PASSWORD
-              value: "{{ .Values.controller.adminPassword }}"
+              value: {{ .Values.controller.adminPassword }}
+            - name: JAVA_OPTS
+              value: "-Djenkins.install.runSetupWizard=false"
+            - name: CASC_JENKINS_CONFIG
+              value: "/var/jenkins_home/casc_configs"
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
+            - name: dsl-scripts
+              mountPath: /var/jenkins_home/dsl
+              readOnly: true
+            - name: casc-config
+              mountPath: /var/jenkins_home/casc_configs
+              readOnly: true
+            - name: git-ssh
+              mountPath: /var/jenkins_home/.ssh
+              readOnly: true
       volumes:
         - name: jenkins-home
           emptyDir: {}
+        - name: plugin-list
+          configMap:
+            name: jenkins-plugin-list
+        - name: dsl-scripts
+          configMap:
+            name: jenkins-dsl-scripts
+        - name: casc-config
+          configMap:
+            name: jenkins-casc-config
+        - name: git-ssh
+          secret:
+            secretName: jenkins-git-ssh
+            defaultMode: 0400
