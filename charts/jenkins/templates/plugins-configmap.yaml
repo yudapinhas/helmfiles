@@ -12,3 +12,8 @@ data:
     job-dsl:latest
     git:latest
     blueocean
+    ssh-credentials:latest
+    ansicolor:latest
+    timestamper:latest
+    ws-cleanup
+    email-ext:latest
