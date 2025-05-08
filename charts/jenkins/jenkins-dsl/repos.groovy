@@ -1,5 +1,3 @@
-// repos.groovy
-
 [
-  [ owner: 'yudapinhas', name: 'netgod-terraform' ]
+    [ name: 'netgod-terraform', sshUrl: 'git@github.com:yudapinhas/netgod-terraform.git' ]
 ]

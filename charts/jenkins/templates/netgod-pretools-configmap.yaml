@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: netgod-pretools-installer
+  namespace: jenkins
+data:
+  install-terraform.sh: |
+    #!/bin/bash
+    set -eux
+
+    # Create a directory for tools in jenkins home
+    TOOLS_DIR="/var/jenkins_home/tools/bin"
+    mkdir -p "$TOOLS_DIR"
+
+    # Check if terraform is already installed
+    if [ -f "$TOOLS_DIR/terraform" ]; then
+        echo "Terraform is already installed"
+        "$TOOLS_DIR/terraform" version
+        exit 0
+    fi
+
+    # Install terraform (no apt-get, no root needed)
+    TERRAFORM_VERSION="1.8.5"
+    ARCHIVE="terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+    curl -Lo "/tmp/${ARCHIVE}" "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${ARCHIVE}"
+    unzip "/tmp/${ARCHIVE}" -d "$TOOLS_DIR"
+    chmod +x "$TOOLS_DIR/terraform"
+
+    # Clean up
+    rm "/tmp/${ARCHIVE}"
+
+    # Verify installation
+    "$TOOLS_DIR/terraform" version
+
+    echo "netgod-pretools have been installed successfully!"

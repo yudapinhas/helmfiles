@@ -1,31 +1,39 @@
-// seedJob.groovy
-
-def repos = evaluate(new File('/var/jenkins_home/dsl/repos.groovy'))
+def repos = [
+    [ name: 'netgod-terraform', sshUrl: 'git@github.com:yudapinhas/netgod-terraform.git' ]
+]
 
 repos.each { repo ->
-    def repoName = repo.name
-    def owner = repo.owner
-    def jobNamePrefix = "${owner}-${repoName}"
-    def gitUrl = "git@github.com:${owner}/${repoName}.git"
-
-    def checkoutDir = "/tmp/${repoName}"
-    println "Cloning repo ${gitUrl}..."
-
-    def result = "git clone ${gitUrl} ${checkoutDir}".execute().waitFor()
-    if (result != 0) {
-        println "ERROR: Failed to clone ${gitUrl}"
-        return
+    pipelineJob("${repo.name}-pull-request") {
+        definition {
+            cpsScm {
+                scm {
+                    git {
+                        remote {
+                            url(repo.sshUrl)
+                            credentials('github-ssh-key')
+                        }
+                        branches('*/master')
+                    }
+                }
+                scriptPath('buildScripts/jenkins/pipelines/pull_request.groovy')
+            }
+        }
     }
 
-    def dslPath = new File("${checkoutDir}/buildScripts/jenkins")
-    if (!dslPath.exists()) {
-        println "ERROR: Missing buildScripts/jenkins folder in ${repoName}"
-        return
-    }
-
-    def dslScripts = ["${dslPath}/pull-request.groovy", "${dslPath}/release.groovy"]
-    dslScripts.each { path ->
-        println "Running DSL: ${path}"
-        jobDsl targets: path, removeAction: 'IGNORE', ignoreMissingFiles: false
+    pipelineJob("${repo.name}-release") {
+        definition {
+            cpsScm {
+                scm {
+                    git {
+                        remote {
+                            url(repo.sshUrl)
+                            credentials('github-ssh-key')
+                        }
+                        branches('*/master')
+                    }
+                }
+                scriptPath('buildScripts/jenkins/pipelines/release.groovy')
+            }
+        }
     }
 }
