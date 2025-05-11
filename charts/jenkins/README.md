@@ -37,7 +37,22 @@ The following values need to be provided and updated in `charts/jenkins/values.y
 - `controller.ssh.privateKey` — Your GitHub SSH private key, **must be in RSA format**, used by Jenkins to pull repositories.
 - `ngrok.authtoken` — Given for free after you create your ngrok account - https://dashboard.ngrok.com/
 
-## 4️⃣ Deployment Script
+## 4️⃣ Prepare repositories for CI/CD:
+- The chart Retrieves Groovy DSL scripts from the repositories listed in the `repos.yaml` file.
+  It expects each repository to follow this structure:
+  ```
+  buildScripts/jenkins/
+      ├── dsl/
+      │   ├── pull_request.groovy
+      │   └── release.groovy
+      └── pipeline/
+          ├── pull_request.groovy
+      │   └── release.groovy
+  ```
+
+  You can take example from git@github.com:yudapinhas/netgod-terraform.git repository which we used for testing.  
+
+## 5️⃣ Deployment Script
 Run the script `jenkins-shared-lib/scripts/deploy_jenkins.sh` to deploy Jenkins:
 
 ```bash
@@ -72,19 +87,8 @@ echo "--- Jenkins pod is now exposed on port 8080 (127.0.0.1)"
 - Global credentials (including the github-ssh-key)
 - A seed job called `seed-ci-cd-pipelines`
 
-## 2️⃣ The seed job:
-- Retrieves Groovy DSL scripts from the repositories listed in the `repos.yaml` file.
-- Expects each repository to follow this structure:
-  ```
-  buildScripts/jenkins/
-      ├── dsl/
-      │   ├── pull_request.groovy
-      │   └── release.groovy
-      └── pipeline/
-          ├── pull_request.groovy
-          └── release.groovy
-  ```
-- Runs the Job DSL to generate Jenkins jobs based on the pipeline Groovy scripts. For example, for the netgod-terraform repository, the following jobs are generated:
+## 2️⃣ Generates CI/CD jobs
+Runs the Job DSL to generate Jenkins jobs based on the pipeline Groovy scripts. For example, for the netgod-terraform repository, the following jobs are generated:
   - `netgod-terraform-pull-request` → builds and tests pull requests.
   - `netgod-terraform-release` → runs the release pipeline for production deployments.
 
