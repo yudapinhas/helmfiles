@@ -109,9 +109,7 @@ Use the printed URL when configuring your GitHub webhooks. Append `/github-webho
 https://e3a9-79-177-129-215.ngrok-free.app/github-webhook/
 ```
 
-Repeat this for each repository you want Jenkins to listen to:
-
-Set up the GitHub webhook in your repository:
+Repeat this for each repository you want Jenkins to listen to and set up the GitHub webhook in your repositories:
 - Go to Settings → Webhooks → Add webhook
 - Payload URL → the ngrok URL + `/github-webhook/`
 - Content type → application/json
