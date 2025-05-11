@@ -50,7 +50,8 @@ The following values need to be provided and updated in `charts/jenkins/values.y
       │   └── release.groovy
   ```
 
-  You can take example from git@github.com:yudapinhas/netgod-terraform.git repository which we used for testing.  
+  You can take example from git@github.com:yudapinhas/netgod-terraform.git repository which we used for testing.
+- Add your own repos to charts/jenkins/jenkins-dsl/repos.groovy.
 
 ## 5️⃣ Deployment Script
 Run the script `jenkins-shared-lib/scripts/deploy_jenkins.sh` to deploy Jenkins:
@@ -77,6 +78,7 @@ echo "Jenkins deployment initiated. Run 'kubectl get pods -n $NAMESPACE' to chec
 kubectl port-forward -n jenkins svc/jenkins 8888:8080
 echo "--- Jenkins pod is now exposed on port 8080 (127.0.0.1)"
 ```
+This script installes the cluster, namespace, chart. It also exposes jenkins locally in port 8080 - accesible via http://localhost:8080
 
 ---
 
@@ -118,3 +120,4 @@ Repeat this for each repository you want Jenkins to listen to and set up the Git
 - Payload URL → the ngrok URL + `/github-webhook/`
 - Content type → application/json
 - Events → choose "Just the push event" or "Let me select individual events," depending on what you want Jenkins to react to.
+
