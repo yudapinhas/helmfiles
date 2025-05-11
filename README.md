@@ -5,6 +5,9 @@
 https://github.com/roboll/helmfile/releases
 
 ## Helm Plugins
+Each charts has it's own README.md file for usage instructions.
+
+## Helm Plugins
 
 ### Helm Diff
 ```

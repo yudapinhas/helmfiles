@@ -21,13 +21,7 @@ data:
                   privateKeySource:
                     directEntry:
                       privateKey: |
-                        -----BEGIN OPENSSH PRIVATE KEY-----
-                        b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-                        QyNTUxOQAAACBl90yzhbOhDuWLP0t3DS1K0M3bH7kJF0D82IdN60lh4gAAAJjp8zeW6fM3
-                        lgAAAAtzc2gtZWQyNTUxOQAAACBl90yzhbOhDuWLP0t3DS1K0M3bH7kJF0D82IdN60lh4g
-                        AAAEClbvTucEOEGJWv3CuRMIUT9PNl+5Z2tejwgjLzF3rc22X3TLOFs6EO5Ys/S3cNLUrQ
-                        zdsfuQkXQPzYh03rSWHiAAAAEXl1ZGE2OTFAZ21haWwuY29tAQIDBA==
-                        -----END OPENSSH PRIVATE KEY-----
+                        {{ .Values.controller.ssh.privateKey | nindent 24 }}
     jobs:
       - script: >
           pipelineJob('seed-ci-cd-pipelines') {
@@ -41,18 +35,37 @@ data:
                       stages {
                           stage('Prepare DSL Scripts') {
                               steps {
-                                  echo 'Copying DSL scripts from mounted directory...'
+                                  println 'Copying DSL scripts from mounted directory...'
                                   sh 'mkdir -p dsl && cp /var/jenkins_home/dsl/*.groovy dsl/'
                               }
                           }
 
                           stage('Run Job DSL') {
+                            steps {
+                                println '************************************************************'
+                                println '⚙️  Starting CI/CD Pipeline Job Generation'
+
+
+                                jobDsl targets: 'dsl/*.groovy',
+                                      removedJobAction: 'IGNORE',
+                                      ignoreExisting: false,
+                                      lookupStrategy: 'JENKINS_ROOT'
+
+                                println '✅  Job Generation Completed! Check the logs above for created/updated jobs.'
+                                println '************************************************************'
+                              }
+                          }
+                      
+                          stage('Exposed Jenkins URL for Github Webhooks') {
                               steps {
-                                  echo 'Running Job DSL scripts...'
-                                  jobDsl targets: 'dsl/*.groovy',
-                                         removedJobAction: 'IGNORE',
-                                         ignoreExisting: false,
-                                         lookupStrategy: 'JENKINS_ROOT'
+                                  println 'Fetching Public Jenkins URL...'
+                                  sh '''
+                                    curl -s http://localhost:4040/api/tunnels | grep -o '"public_url":"[^"]*"' | sed 's/"public_url":"//;s/"//' > /var/jenkins_home/tunnel-url.txt
+                                    echo "************************************************************"
+                                    echo "🌐 Jenkins URL for Webhooks: \$(cat /var/jenkins_home/tunnel-url.txt)"
+                                  '''
+                                  println '************************************************************'
+
                               }
                           }
                       }
