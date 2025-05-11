@@ -21,8 +21,6 @@ It is designed to bootstrap Jenkins jobs automatically using Job DSL and Jenkins
 ---
 
 # 🔧 **Requirements**
-To run this chart successfully, you must provide:
-
 ## 1️⃣ Helm + Kubernetes Cluster
 - Helm 3.x installed
 - A running Kubernetes cluster (tested on Minikube, EKS, GKE, etc.)
@@ -90,22 +88,22 @@ echo "--- Jenkins pod is now exposed on port 8080 (127.0.0.1)"
   - `netgod-terraform-pull-request` → builds and tests pull requests.
   - `netgod-terraform-release` → runs the release pipeline for production deployments.
 
-## 3️⃣ The generated jobs use the shared library `netgod-jenkins-shared-lib` to pull reusable Groovy steps and functions.
+## 3️⃣ jenkins-shared-lib
+The generated jobs use the shared library `netgod-jenkins-shared-lib` to pull reusable Groovy steps and functions.
 
 ## 4️⃣ Configure Webhooks
 To enable automatic CI/CD trigger flows, you must configure GitHub webhooks for each repository that should notify Jenkins about events like pushes or pull requests.
 
 These webhooks should point to your Jenkins server's public URL.
 
-# 💻 Running Jenkins Locally?
+### 💻 Running Jenkins Locally?
 If you're running Jenkins locally (e.g., using Minikube or Docker), you likely don't have a static public endpoint by default. To solve that, this Helm chart includes a sidecar container running ngrok, which automatically exposes your local Jenkins to the internet by generating a secure public URL.
 
 The seed job will detect and print this URL when it runs, so you can easily grab and use it for webhook setup.
 
-## ✅ Jenkins URL for Webhooks: https://e3a9-79-177-129-215.ngrok-free.app
-```
+### ✅ Jenkins URL for Webhooks: https://e3a9-79-177-129-215.ngrok-free.app
 
-## 🔁 How to Use It
+### 🔁 How to Use It
 Use the printed URL when configuring your GitHub webhooks. Append `/github-webhook/` to the end, like this:
 ```
 https://e3a9-79-177-129-215.ngrok-free.app/github-webhook/
