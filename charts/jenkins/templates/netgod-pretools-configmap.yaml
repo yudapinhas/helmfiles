@@ -20,7 +20,7 @@ data:
     fi
 
     # Install terraform (no apt-get, no root needed)
-    TERRAFORM_VERSION="1.8.5"
+    TERRAFORM_VERSION="1.11.3"
     ARCHIVE="terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
     curl -Lo "/tmp/${ARCHIVE}" "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${ARCHIVE}"
@@ -30,7 +30,6 @@ data:
     # Clean up
     rm "/tmp/${ARCHIVE}"
 
-    # Verify installation
-    "$TOOLS_DIR/terraform" version
+    export PATH="$TOOLS_DIR:$PATH"
 
     echo "netgod-pretools have been installed successfully!"
