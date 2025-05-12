@@ -41,3 +41,4 @@ data:
     timestamper:latest
     ws-cleanup
     email-ext:latest
+    ghprb:latest

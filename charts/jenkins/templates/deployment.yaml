@@ -36,6 +36,40 @@ spec:
               mountPath: /plugins
             - name: jenkins-home
               mountPath: /var/jenkins_home
+
+        - name: install-pretools
+          image: ubuntu:latest
+          securityContext:
+            runAsUser: 0
+          command:
+            - bash
+            - -c
+            - |
+              set -eux
+              mkdir -p /var/jenkins_home/tools/bin
+              chown -R 1000:1000 /var/jenkins_home
+              cat > /var/jenkins_home/.bashrc << 'EOF'
+              export PATH=/var/jenkins_home/tools/bin:$PATH
+              EOF
+              cat > /var/jenkins_home/.bash_profile << 'EOF'
+              if [ -f ~/.bashrc ]; then
+                  . ~/.bashrc
+              fi
+              export PATH=/var/jenkins_home/tools/bin:$PATH
+              EOF
+              chown 1000:1000 /var/jenkins_home/.bashrc /var/jenkins_home/.bash_profile
+              chmod 644 /var/jenkins_home/.bashrc /var/jenkins_home/.bash_profile
+
+              apt-get update && apt-get install -y curl unzip
+              for script in /netgod-pretools/*.sh; do
+                echo "Executing $script"
+                bash "$script" || exit 1
+              done
+          volumeMounts:
+            - name: netgod-pretools
+              mountPath: /netgod-pretools
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
       containers:
         - name: jenkins
           image: "jenkins/jenkins:lts"
@@ -66,7 +100,6 @@ spec:
             - name: netgod-pretools
               mountPath: /var/jenkins_home/netgod-pretools
               readOnly: true
-
         - name: ngrok
           image: ngrok/ngrok:latest
           command:
@@ -81,7 +114,6 @@ spec:
                   key: authtoken
           ports:
             - containerPort: 4040
-
       volumes:
         - name: jenkins-home
           emptyDir: {}
