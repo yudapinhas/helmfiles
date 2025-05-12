@@ -13,12 +13,12 @@ helmDefaults:
   force: false
 
 releases:
-  - name: kenshoo-namespace
+  - name: play-namespace
     chart: ./charts/namespace
     version: 0.1.0
     namespace: kube-system
     values:
-      - ./values/{{ .Environment.Name }}/kenshoo-namespace.yaml
+      - ./values/{{ .Environment.Name }}/play-namespace.yaml
   - name: jenkins-secrets
     chart: ./charts/secrets
     namespace: jenkins
