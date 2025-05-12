@@ -49,7 +49,9 @@ data:
                                 jobDsl targets: 'dsl/*.groovy',
                                       removedJobAction: 'IGNORE',
                                       ignoreExisting: false,
-                                      lookupStrategy: 'JENKINS_ROOT'
+                                      lookupStrategy: 'JENKINS_ROOT',
+                                      additionalClasspath: '',
+                                      sandbox: false
 
                                 println '✅  Job Generation Completed! Check the logs above for created/updated jobs.'
                                 println '************************************************************'
