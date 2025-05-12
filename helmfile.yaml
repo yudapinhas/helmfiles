@@ -13,12 +13,12 @@ helmDefaults:
   force: false
 
 releases:
-  - name: play-namespace
+  - name: netgod-namespace
     chart: ./charts/namespace
     version: 0.1.0
     namespace: kube-system
     values:
-      - ./values/{{ .Environment.Name }}/play-namespace.yaml
+      - ./values/{{ .Environment.Name }}/netgod-namespace.yaml
   - name: jenkins-secrets
     chart: ./charts/secrets
     namespace: jenkins
