@@ -1,5 +1,5 @@
 ngrok:
-  authtoken: 'your-ngrok-auth-token-here'
+  authtoken: 2wu9An14jQAODFLyec8IPETX3ro_AQ9pHMERB3y9Qiz3ACA9
   
 controller:
   enabled: true
@@ -8,10 +8,61 @@ controller:
   adminUser: admin
   adminPassword: admin
   javaOpts: "-Djenkins.install.runSetupWizard=false -Djenkins.plugin.startup.timeout=300"
+  env:
+    - name: GITHUB_PAT
+      value: "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" # <-- used for github triggers to work
   ssh:
     privateKey: |
       -----BEGIN RSA PRIVATE KEY-----
-      'your-private-key-here'
+      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
       -----END RSA PRIVATE KEY-----
     knownHosts: |
       github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
@@ -34,3 +85,5 @@ controller:
   initScripts:
     - name: disable-setup.groovy
       configMap: disable-setup-configmap
+    - name: 01-add-github-pat.groovy
+      configMap: add-github-pat-configmap

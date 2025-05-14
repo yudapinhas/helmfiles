@@ -3,17 +3,13 @@ def repos = evaluate(new File("${JENKINS_HOME}/dsl/repos.groovy"))
 repos.each { repo ->
 
   pipelineJob("${repo.name}-pull-request") {
-    description("Runs on PR open or when someone comments 'retest this please' on ${repo.name}")
-    triggers {
-      githubPullRequest {
-        useGitHubHooks()
-        triggerPhrase('retest this please')
-        onlyTriggerPhrase(true)
-        permitAll(true)
-        admins(['yudapinhas'])
-        whiteListTargetBranches(['master'])
-      }
+    displayName("${repo.name}-pull-request")
+    description("Pull Request CI for ${repo.name}")
+
+    properties {
+      githubProjectUrl("https://github.com/${repo.org}/${repo.name}")
     }
+
     definition {
       cpsScm {
         scm {
@@ -22,19 +18,35 @@ repos.each { repo ->
               url(repo.sshUrl)
               credentials('github-ssh-key')
             }
-            branches('*/master')
           }
         }
         scriptPath('buildScripts/jenkins/pipelines/pull_request.groovy')
       }
     }
+
+    triggers {
+      githubPullRequest {
+        useGitHubHooks() 
+        permitAll()
+        triggerPhrase('retest this please')
+        admin("${repo.org}")
+        extensions {
+          commitStatus {
+            context("CI - ${repo.name} PR")
+            triggeredStatus("Triggered by PR or comment")
+            startedStatus("Running CI for PR…")
+            completedStatus("SUCCESS", "Build succeeded")
+            completedStatus("FAILURE", "Build failed")
+          }
+        }
+      }
+    }
   }
 
   pipelineJob("${repo.name}-release") {
+    displayName("${repo.name}-release")
     description("Runs on push to master for ${repo.name}")
-    triggers {
-      githubPush()
-    }
+
     definition {
       cpsScm {
         scm {
@@ -48,6 +60,10 @@ repos.each { repo ->
         }
         scriptPath('buildScripts/jenkins/pipelines/release.groovy')
       }
+    }
+
+    triggers {
+      githubPush()
     }
   }
 }

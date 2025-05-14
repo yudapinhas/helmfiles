@@ -26,6 +26,80 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: add-github-pat-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+  01-add-github-pat.groovy: |-
+    import jenkins.model.*
+    import com.cloudbees.plugins.credentials.*
+    import com.cloudbees.plugins.credentials.domains.*
+    import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl
+    import hudson.util.Secret
+    import org.jenkinsci.plugins.github.GitHubPlugin
+    import org.jenkinsci.plugins.github.config.GitHubPluginConfig
+    import org.jenkinsci.plugins.github.config.GitHubServerConfig
+
+    def pat = System.getenv("GITHUB_PAT")
+    if (pat) {
+      def creds = new StringCredentialsImpl(
+        CredentialsScope.GLOBAL,
+        "github-pat",
+        "GitHub PAT for GHPRB",
+        Secret.fromString(pat)
+      )
+      SystemCredentialsProvider.getInstance()
+        .getStore()
+        .addCredentials(Domain.global(), creds)
+      println "✅ Injected github-pat secret-text credential"
+    } else {
+      println "⚠️  GITHUB_PAT not set, skipping github-pat injection"
+    }
+
+    def cfg = GitHubPlugin.configuration() as GitHubPluginConfig
+    def server = new GitHubServerConfig("github-pat")
+    server.setName("GitHub")
+    server.setApiUrl("https://api.github.com")
+    server.setManageHooks(true)
+    
+    cfg.setConfigs([server])
+    cfg.save()
+    println "✅ Configured GitHub plugin with a single server entry"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: set-jenkins-location-configmap
+  namespace: jenkins
+data:
+  00-set-jenkins-location.groovy: |-
+    import jenkins.model.Jenkins
+    import jenkins.model.JenkinsLocationConfiguration
+    import groovy.json.JsonSlurper
+
+    def publicUrl = (1..30).findResult {
+    try {
+      def tunnels = new groovy.json.JsonSlurper()
+        .parseText(new URL("http://127.0.0.1:4040/api/tunnels").text)
+        .tunnels
+      return tunnels.find { it.proto == 'https' }?.public_url
+    } catch(_) {
+      sleep 2000  // wait 2s before retry
+      return null
+    }
+    }
+
+    if (!publicUrl) {
+      println "⚠️  ngrok URL not found after 10s; webhooks will break"
+    } else {
+      println "✅ Setting Jenkins URL → ${publicUrl}"
+      def loc = JenkinsLocationConfiguration.get()
+      loc.setUrl(publicUrl)
+      loc.save()
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
   name: jenkins-plugin-list
   namespace: {{ .Release.Namespace }}
 data:
@@ -35,8 +109,11 @@ data:
     workflow-aggregator:latest
     job-dsl:latest
     git:latest
+    github:latest
+    
     blueocean
     ssh-credentials:latest
+    plain-credentials:latest
     ansicolor:latest
     timestamper:latest
     ws-cleanup
