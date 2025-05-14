@@ -17,10 +17,10 @@ spec:
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
-        fsGroup: 1000 
+        fsGroup: 1000
       initContainers:
         - name: install-plugins
-          image: "jenkins/jenkins:lts"
+          image: jenkins/jenkins:lts
           command:
             - bash
             - -c
@@ -31,7 +31,7 @@ spec:
                 --plugin-file /plugins/plugins.txt \
                 --plugin-download-directory /var/jenkins_home/plugins \
                 --verbose
-          volumeMounts: 
+          volumeMounts:
             - name: plugin-list
               mountPath: /plugins
             - name: jenkins-home
@@ -62,7 +62,6 @@ spec:
 
               apt-get update && apt-get install -y curl unzip
               for script in /netgod-pretools/*.sh; do
-                echo "Executing $script"
                 bash "$script" || exit 1
               done
           volumeMounts:
@@ -70,12 +69,15 @@ spec:
               mountPath: /netgod-pretools
             - name: jenkins-home
               mountPath: /var/jenkins_home
+
       containers:
         - name: jenkins
-          image: "jenkins/jenkins:lts"
+          image: jenkins/jenkins:lts
           ports:
             - containerPort: 8080
           env:
+            - name: JENKINS_ENABLE_FORWARD_HEADERS
+              value: "true"
             - name: JENKINS_ADMIN_ID
               value: admin
             - name: JENKINS_ADMIN_PASSWORD
@@ -84,6 +86,8 @@ spec:
               value: "-Djenkins.install.runSetupWizard=false"
             - name: CASC_JENKINS_CONFIG
               value: "/var/jenkins_home/casc_configs"
+            - name: GITHUB_PAT
+              value: {{ index .Values.controller.env 0 "value" | quote }}
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
@@ -100,20 +104,33 @@ spec:
             - name: netgod-pretools
               mountPath: /var/jenkins_home/netgod-pretools
               readOnly: true
+            - name: set-jenkins-location-init
+              subPath: 00-set-jenkins-location.groovy
+              mountPath: /var/jenkins_home/init.groovy.d/00-set-jenkins-location.groovy
+              readOnly: true
+            - name: add-github-pat-init
+              subPath: 01-add-github-pat.groovy
+              mountPath: /var/jenkins_home/init.groovy.d/01-add-github-pat.groovy
+              readOnly: true
+
         - name: ngrok
           image: ngrok/ngrok:latest
-          command:
-            - ngrok
-            - http
-            - 0.0.0.0:8080
           env:
             - name: NGROK_AUTHTOKEN
               valueFrom:
                 secretKeyRef:
                   name: ngrok-secret
                   key: authtoken
+          command:
+            - sh
+            - -c
+            - |
+              ngrok config add-authtoken "${NGROK_AUTHTOKEN}"
+
+              ngrok http 8080 --log=stdout --host-header=rewrite
           ports:
             - containerPort: 4040
+
       volumes:
         - name: jenkins-home
           emptyDir: {}
@@ -132,4 +149,12 @@ spec:
         - name: netgod-pretools
           configMap:
             name: netgod-pretools-installer
+            defaultMode: 0755
+        - name: set-jenkins-location-init
+          configMap:
+            name: set-jenkins-location-configmap
+            defaultMode: 0755
+        - name: add-github-pat-init
+          configMap:
+            name: add-github-pat-configmap
             defaultMode: 0755
