@@ -104,13 +104,9 @@ spec:
             - name: netgod-pretools
               mountPath: /var/jenkins_home/netgod-pretools
               readOnly: true
-            - name: set-jenkins-location-init
-              subPath: 00-set-jenkins-location.groovy
-              mountPath: /var/jenkins_home/init.groovy.d/00-set-jenkins-location.groovy
-              readOnly: true
-            - name: add-github-pat-init
-              subPath: 01-add-github-pat.groovy
-              mountPath: /var/jenkins_home/init.groovy.d/01-add-github-pat.groovy
+            - name: manage-jenkins-configs-init
+              subPath: 00-manage-jenkins-configs.groovy
+              mountPath: /var/jenkins_home/init.groovy.d/00-manage-jenkins-configs.groovy
               readOnly: true
 
         - name: ngrok
@@ -126,7 +122,6 @@ spec:
             - -c
             - |
               ngrok config add-authtoken "${NGROK_AUTHTOKEN}"
-
               ngrok http 8080 --log=stdout --host-header=rewrite
           ports:
             - containerPort: 4040
@@ -150,11 +145,7 @@ spec:
           configMap:
             name: netgod-pretools-installer
             defaultMode: 0755
-        - name: set-jenkins-location-init
+        - name: manage-jenkins-configs-init
           configMap:
-            name: set-jenkins-location-configmap
-            defaultMode: 0755
-        - name: add-github-pat-init
-          configMap:
-            name: add-github-pat-configmap
+            name: manage-jenkins-configmap
             defaultMode: 0755

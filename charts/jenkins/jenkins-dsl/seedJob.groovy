@@ -61,7 +61,6 @@ repos.each { repo ->
         scriptPath('buildScripts/jenkins/pipelines/release.groovy')
       }
     }
-
     triggers {
       githubPush()
     }
