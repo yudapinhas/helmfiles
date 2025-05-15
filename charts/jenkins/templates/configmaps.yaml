@@ -26,11 +26,12 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: add-github-pat-configmap
+  name: manage-jenkins-configmap
   namespace: {{ .Release.Namespace }}
 data:
-  01-add-github-pat.groovy: |-
+  00-manage-jenkins-configs.groovy: |-
     import jenkins.model.*
+    import jenkins.model.JenkinsLocationConfiguration
     import com.cloudbees.plugins.credentials.*
     import com.cloudbees.plugins.credentials.domains.*
     import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl
@@ -38,7 +39,37 @@ data:
     import org.jenkinsci.plugins.github.GitHubPlugin
     import org.jenkinsci.plugins.github.config.GitHubPluginConfig
     import org.jenkinsci.plugins.github.config.GitHubServerConfig
+    import groovy.json.JsonSlurper
 
+    println "⏳ Waiting 60s for ngrok to start…"
+    sleep 60000
+
+    // ——————————————
+    // 1) Determine and set Jenkins URL
+    // ——————————————
+    def loc = JenkinsLocationConfiguration.get()
+    def jenkinsUrl = loc.getUrl()
+    if (!jenkinsUrl) {
+      // poll ngrok
+      jenkinsUrl = (1..30).findResult {
+        try {
+          def data = new JsonSlurper().parseText(new URL("http://127.0.0.1:4040/api/tunnels").text)
+          data.tunnels.find { it.proto=='https' }?.public_url
+        } catch(_) {
+          sleep 2000; null
+        }
+      }
+      if (jenkinsUrl) {
+        loc.setUrl(jenkinsUrl)
+        loc.save()
+      } else {
+        println "⚠️  ngrok URL not found; please configure Jenkins URL by hand"
+      }
+    }
+
+    // ——————————————
+    // 2) Inject GitHub PAT
+    // ——————————————
     def pat = System.getenv("GITHUB_PAT")
     if (pat) {
       def creds = new StringCredentialsImpl(
@@ -50,52 +81,44 @@ data:
       SystemCredentialsProvider.getInstance()
         .getStore()
         .addCredentials(Domain.global(), creds)
-      println "✅ Injected github-pat secret-text credential"
+      println "✅ Injected github-pat credential"
     } else {
-      println "⚠️  GITHUB_PAT not set, skipping github-pat injection"
+      println "⚠️  GITHUB_PAT not set; skipping credential injection"
     }
-
+    // ——————————————
+    // 3) Configure GitHub plugin + webhook URL
+    // ——————————————
     def cfg = GitHubPlugin.configuration() as GitHubPluginConfig
+    cfg.getConfigs().clear()
+
     def server = new GitHubServerConfig("github-pat")
     server.setName("GitHub")
     server.setApiUrl("https://api.github.com")
-    server.setManageHooks(true)
-    
-    cfg.setConfigs([server])
+    server.setManageHooks(false)
+    cfg.getConfigs().add(server)
+
+    if (jenkinsUrl) {
+      cfg.setHookUrl("${jenkinsUrl}/github-webhook/")
+      println "✅ GitHub plugin hook URL → ${jenkinsUrl}/github-webhook/"
+    }
+
     cfg.save()
-    println "✅ Configured GitHub plugin with a single server entry"
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: set-jenkins-location-configmap
-  namespace: jenkins
-data:
-  00-set-jenkins-location.groovy: |-
-    import jenkins.model.Jenkins
-    import jenkins.model.JenkinsLocationConfiguration
-    import groovy.json.JsonSlurper
+    println "✅ Jenkins GitHub plugin fully configured"
 
-    def publicUrl = (1..30).findResult {
-    try {
-      def tunnels = new groovy.json.JsonSlurper()
-        .parseText(new URL("http://127.0.0.1:4040/api/tunnels").text)
-        .tunnels
-      return tunnels.find { it.proto == 'https' }?.public_url
-    } catch(_) {
-      sleep 2000  // wait 2s before retry
-      return null
-    }
+    import org.jenkinsci.plugins.ghprb.GhprbTrigger
+    import jenkins.model.*
+
+    println "🔁 Triggering ghprbTrigger.start() on all WorkflowJobs…"
+
+    Jenkins.instance.getAllItems(org.jenkinsci.plugins.workflow.job.WorkflowJob).each { job ->
+      def trigger = job.getTriggers()?.get(GhprbTrigger)
+      if (trigger != null) {
+        println "➡️ Starting ghprbTrigger for job: ${job.fullName}"
+        trigger.start(job, true)
+      }
     }
 
-    if (!publicUrl) {
-      println "⚠️  ngrok URL not found after 10s; webhooks will break"
-    } else {
-      println "✅ Setting Jenkins URL → ${publicUrl}"
-      def loc = JenkinsLocationConfiguration.get()
-      loc.setUrl(publicUrl)
-      loc.save()
-    }
+    println "✅ ghprbTrigger initialization complete."
 ---
 apiVersion: v1
 kind: ConfigMap
