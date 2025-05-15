@@ -104,6 +104,22 @@ data:
 
     cfg.save()
     println "✅ Jenkins GitHub plugin fully configured"
+
+    // 4) Trigger ghprbTrigger.start() on all WorkflowJobs
+    import org.jenkinsci.plugins.ghprb.GhprbTrigger
+
+    println "🔁 Triggering ghprbTrigger.start() on all WorkflowJobs…"
+
+    Jenkins.instance.getAllItems(org.jenkinsci.plugins.workflow.job.WorkflowJob).each { job ->
+        def trigger = job.getTriggers()?.get(GhprbTrigger)
+        if (trigger != null) {
+            println "➡️ Starting ghprbTrigger for job: ${job.fullName}"
+            trigger.stop() // Stop existing trigger to reset
+            trigger.start(job, true) // Restart with new configuration
+        }
+    }
+
+    println "✅ ghprbTrigger initialization complete."
 ---
 apiVersion: v1
 kind: ConfigMap
