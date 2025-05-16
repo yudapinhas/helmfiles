@@ -44,25 +44,27 @@ repos.each { repo ->
   }
 
   pipelineJob("${repo.name}-release") {
-    displayName("${repo.name}-release")
-    description("Runs on push to master for ${repo.name}")
+        displayName("${repo.name}-release")
+        description("Runs on push to master for ${repo.name}")
 
-    definition {
-      cpsScm {
-        scm {
-          git {
-            remote {
-              url(repo.sshUrl)
-              credentials('github-ssh-key')
+        definition {
+            cpsScm {
+                scm {
+                    git {
+                        remote {
+                            url(repo.sshUrl)
+                            credentials('github-ssh-key')
+                        }
+                        branches('*/master') 
+                    }
+                }
+                scriptPath('buildScripts/jenkins/pipelines/release.groovy')
             }
-            branches('*/master')
-          }
         }
-        scriptPath('buildScripts/jenkins/pipelines/release.groovy')
-      }
-    }
-    triggers {
-      githubPush()
-    }
-  }
-}
+
+        triggers {
+            scm('H/2 * * * *')
+        }
+    }  
+
+}  
