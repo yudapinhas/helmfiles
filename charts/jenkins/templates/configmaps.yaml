@@ -26,6 +26,108 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: manage-jenkins-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+  00-manage-jenkins-configs.groovy: |-
+    import jenkins.model.*
+    import jenkins.model.JenkinsLocationConfiguration
+    import com.cloudbees.plugins.credentials.*
+    import com.cloudbees.plugins.credentials.domains.*
+    import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl
+    import hudson.util.Secret
+    import org.jenkinsci.plugins.github.GitHubPlugin
+    import org.jenkinsci.plugins.github.config.GitHubPluginConfig
+    import org.jenkinsci.plugins.github.config.GitHubServerConfig
+    import groovy.json.JsonSlurper
+
+    def loc = JenkinsLocationConfiguration.get()
+    def jenkinsUrl = null
+
+    (1..60).each {
+      try {
+        def data = new JsonSlurper().parseText(new URL("http://127.0.0.1:4040/api/tunnels").text)
+        def httpsTunnel = data.tunnels.find { it.proto == 'https' }
+        if (httpsTunnel?.public_url) {
+          jenkinsUrl = httpsTunnel.public_url
+          println "✅ ngrok public URL detected: ${jenkinsUrl}"
+          return
+        } else {
+          println "⏳ ngrok tunnel not ready yet… (try #${it})"
+        }
+      } catch (e) {
+        println "⏳ ngrok not reachable (try #${it})"
+      }
+      sleep(2000)
+    }
+
+    if (jenkinsUrl) {
+      loc.setUrl(jenkinsUrl)
+      loc.save()
+    } else {
+      println "⚠️  ngrok URL not found; please configure Jenkins URL by hand"
+    }
+
+    // ——————————————
+    // 2) Inject GitHub PAT
+    // ——————————————
+    def pat = System.getenv("GITHUB_PAT")
+    if (pat) {
+      def creds = new StringCredentialsImpl(
+        CredentialsScope.GLOBAL,
+        "github-pat",
+        "GitHub PAT for GHPRB",
+        Secret.fromString(pat)
+      )
+      SystemCredentialsProvider.getInstance()
+        .getStore()
+        .addCredentials(Domain.global(), creds)
+      println "✅ Injected github-pat credential"
+    } else {
+      println "⚠️  GITHUB_PAT not set; skipping credential injection"
+    }
+    // ——————————————
+    // 3) Configure GitHub plugin + webhook URL
+    // ——————————————
+    def cfg = GitHubPlugin.configuration() as GitHubPluginConfig
+    cfg.getConfigs().clear()
+
+    def server = new GitHubServerConfig("github-pat")
+    server.setName("GitHub")
+    server.setApiUrl("https://api.github.com")
+    server.setManageHooks(true)
+    cfg.getConfigs().add(server)
+
+    if (jenkinsUrl) {
+      cfg.setHookUrl("${jenkinsUrl}/github-webhook/")
+      println "✅ GitHub plugin hook URL → ${jenkinsUrl}/ghprbhook/"
+    }
+
+    cfg.save()
+    println "✅ Jenkins GitHub plugin fully configured"
+
+    // ——————————————
+    // 4) Tell GHPRB which PAT to use
+    // ——————————————
+    import org.jenkinsci.plugins.ghprb.*
+
+    def ghprbDesc = Jenkins.instance.getDescriptorByType(GhprbTrigger.DescriptorImpl)
+    def auth = new GhprbGitHubAuth(
+            "https://api.github.com",   // serverAPIUrl
+            null,                       // jenkinsUrl (not required for auth)
+            "github-pat",               // credentialsId
+            null,                       // description
+            null,                       // id (auto-generated)
+            null                        // secret (no shared secret)
+    )
+
+    ghprbDesc.githubAuth = [auth]
+    ghprbDesc.save()
+    println "✅ GHPRB global GitHubAuth configured"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
   name: jenkins-plugin-list
   namespace: {{ .Release.Namespace }}
 data:
@@ -35,8 +137,11 @@ data:
     workflow-aggregator:latest
     job-dsl:latest
     git:latest
+    github:latest
+    
     blueocean
     ssh-credentials:latest
+    plain-credentials:latest
     ansicolor:latest
     timestamper:latest
     ws-cleanup

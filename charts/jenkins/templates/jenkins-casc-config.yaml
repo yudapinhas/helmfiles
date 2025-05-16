@@ -9,10 +9,16 @@ data:
       systemMessage: "Configured by JCasC"
       numExecutors: 2
       clouds: []
+      crumbIssuer:
+        default:
+          excludeClientIPFromCrumb: true
     credentials:
       system:
         domainCredentials:
-          - credentials:
+          - domain:
+              name: "" 
+              description: "Global credentials"
+            credentials:
               - basicSSHUserPrivateKey:
                   scope: GLOBAL
                   id: "github-ssh-key"

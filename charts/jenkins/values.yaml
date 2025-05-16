@@ -8,6 +8,9 @@ controller:
   adminUser: admin
   adminPassword: admin
   javaOpts: "-Djenkins.install.runSetupWizard=false -Djenkins.plugin.startup.timeout=300"
+  env:
+    - name: GITHUB_PAT
+      value: 'your-github-classic-personal-access-token-here' # <-- used for github triggers to work
   ssh:
     privateKey: |
       -----BEGIN RSA PRIVATE KEY-----
@@ -34,3 +37,5 @@ controller:
   initScripts:
     - name: disable-setup.groovy
       configMap: disable-setup-configmap
+    - name: 01-add-github-pat.groovy
+      configMap: add-github-pat-configmap
