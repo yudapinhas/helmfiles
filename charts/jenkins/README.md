@@ -36,15 +36,13 @@ git clone git@github.com:yudapinhas/jenkins-shared-lib.git
 The following values need to be provided and updated in `charts/jenkins/values.yaml`:
 - `controller.ssh.privateKey` — Your GitHub SSH private key, **must be in RSA format**, used by Jenkins to pull repositories.
 - `ngrok.authtoken` — Given for free after you create your ngrok account - https://dashboard.ngrok.com/
+- `github-pat` - Github Personal Access Token (classic). Can be generated in Developer Settings for webhook intergration. Make sure it has the following permissions: repo, admin:repo_hook, admin:org_hook
 
 ## 4️⃣ Prepare repositories for CI/CD:
 - The chart Retrieves Groovy DSL scripts from the repositories listed in the `repos.yaml` file.
   It expects each repository to follow this structure:
   ```
   buildScripts/jenkins/
-      ├── dsl/
-      │   ├── pull_request.groovy
-      │   └── release.groovy
       └── pipeline/
           ├── pull_request.groovy
       │   └── release.groovy
@@ -97,27 +95,10 @@ Runs the Job DSL to generate Jenkins jobs based on the pipeline Groovy scripts. 
 ## 3️⃣ jenkins-shared-lib
 The generated jobs use the shared library `netgod-jenkins-shared-lib` to pull reusable Groovy steps and functions.
 
-## 4️⃣ Configure Webhooks
-To enable automatic CI/CD trigger flows, you must configure GitHub webhooks for each repository that should notify Jenkins about events like pushes or pull requests.
+## 4️⃣ Webhooks automatic creation
+To enable automatic CI/CD trigger flows, you just need to run the seed-ci-cd-pipelines job once, it will automatically intergrate the newly deployment of jenkins with your repositories including:
+1. pullrequest job - Triggered by new pull requests and "retest this please" phrase inside a PR.
+2. release job - Triggered first time automatically on latest merge. Triggered by merge to master.
 
-These webhooks should point to your Jenkins server's public URL.
-
-### 💻 Running Jenkins Locally?
-If you're running Jenkins locally (e.g., using Minikube or Docker), you likely don't have a static public endpoint by default. To solve that, this Helm chart includes a sidecar container running ngrok, which automatically exposes your local Jenkins to the internet by generating a secure public URL.
-
-The seed job will detect and print this URL when it runs, so you can easily grab and use it for webhook setup.
-
-### ✅ Jenkins URL for Webhooks: https://e3a9-79-177-129-215.ngrok-free.app
-
-### 🔁 How to Use It
-Use the printed URL when configuring your GitHub webhooks. Append `/github-webhook/` to the end, like this:
-```
-https://e3a9-79-177-129-215.ngrok-free.app/github-webhook/
-```
-
-Repeat this for each repository you want Jenkins to listen to and set up the GitHub webhook in your repositories:
-- Go to Settings → Webhooks → Add webhook
-- Payload URL → the ngrok URL + `/github-webhook/`
-- Content type → application/json
-- Events → choose "Just the push event" or "Let me select individual events," depending on what you want Jenkins to react to.
+These webhooks are created by using github-pat secret.
 
