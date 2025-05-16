@@ -41,30 +41,31 @@ data:
     import org.jenkinsci.plugins.github.config.GitHubServerConfig
     import groovy.json.JsonSlurper
 
-    println "⏳ Waiting 60s for ngrok to start…"
-    sleep 60000
-
-    // ——————————————
-    // 1) Determine and set Jenkins URL
-    // ——————————————
     def loc = JenkinsLocationConfiguration.get()
-    def jenkinsUrl = loc.getUrl()
-    if (!jenkinsUrl) {
-      // poll ngrok
-      jenkinsUrl = (1..30).findResult {
-        try {
-          def data = new JsonSlurper().parseText(new URL("http://127.0.0.1:4040/api/tunnels").text)
-          data.tunnels.find { it.proto=='https' }?.public_url
-        } catch(_) {
-          sleep 2000; null
+    def jenkinsUrl = null
+
+    (1..60).each {
+      try {
+        def data = new JsonSlurper().parseText(new URL("http://127.0.0.1:4040/api/tunnels").text)
+        def httpsTunnel = data.tunnels.find { it.proto == 'https' }
+        if (httpsTunnel?.public_url) {
+          jenkinsUrl = httpsTunnel.public_url
+          println "✅ ngrok public URL detected: ${jenkinsUrl}"
+          return
+        } else {
+          println "⏳ ngrok tunnel not ready yet… (try #${it})"
         }
+      } catch (e) {
+        println "⏳ ngrok not reachable (try #${it})"
       }
-      if (jenkinsUrl) {
-        loc.setUrl(jenkinsUrl)
-        loc.save()
-      } else {
-        println "⚠️  ngrok URL not found; please configure Jenkins URL by hand"
-      }
+      sleep(2000)
+    }
+
+    if (jenkinsUrl) {
+      loc.setUrl(jenkinsUrl)
+      loc.save()
+    } else {
+      println "⚠️  ngrok URL not found; please configure Jenkins URL by hand"
     }
 
     // ——————————————
@@ -94,32 +95,35 @@ data:
     def server = new GitHubServerConfig("github-pat")
     server.setName("GitHub")
     server.setApiUrl("https://api.github.com")
-    server.setManageHooks(false)
+    server.setManageHooks(true)
     cfg.getConfigs().add(server)
 
     if (jenkinsUrl) {
       cfg.setHookUrl("${jenkinsUrl}/github-webhook/")
-      println "✅ GitHub plugin hook URL → ${jenkinsUrl}/github-webhook/"
+      println "✅ GitHub plugin hook URL → ${jenkinsUrl}/ghprbhook/"
     }
 
     cfg.save()
     println "✅ Jenkins GitHub plugin fully configured"
 
-    // 4) Trigger ghprbTrigger.start() on all WorkflowJobs
-    import org.jenkinsci.plugins.ghprb.GhprbTrigger
+    // ——————————————
+    // 4) Tell GHPRB which PAT to use
+    // ——————————————
+    import org.jenkinsci.plugins.ghprb.*
 
-    println "🔁 Triggering ghprbTrigger.start() on all WorkflowJobs…"
+    def ghprbDesc = Jenkins.instance.getDescriptorByType(GhprbTrigger.DescriptorImpl)
+    def auth = new GhprbGitHubAuth(
+            "https://api.github.com",   // serverAPIUrl
+            null,                       // jenkinsUrl (not required for auth)
+            "github-pat",               // credentialsId
+            null,                       // description
+            null,                       // id (auto-generated)
+            null                        // secret (no shared secret)
+    )
 
-    Jenkins.instance.getAllItems(org.jenkinsci.plugins.workflow.job.WorkflowJob).each { job ->
-        def trigger = job.getTriggers()?.get(GhprbTrigger)
-        if (trigger != null) {
-            println "➡️ Starting ghprbTrigger for job: ${job.fullName}"
-            trigger.stop() // Stop existing trigger to reset
-            trigger.start(job, true) // Restart with new configuration
-        }
-    }
-
-    println "✅ ghprbTrigger initialization complete."
+    ghprbDesc.githubAuth = [auth]
+    ghprbDesc.save()
+    println "✅ GHPRB global GitHubAuth configured"
 ---
 apiVersion: v1
 kind: ConfigMap

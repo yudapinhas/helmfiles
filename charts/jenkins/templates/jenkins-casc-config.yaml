@@ -16,7 +16,7 @@ data:
       system:
         domainCredentials:
           - domain:
-              name: ""                  # the “global” domain
+              name: "" 
               description: "Global credentials"
             credentials:
               - basicSSHUserPrivateKey:
