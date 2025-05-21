@@ -18,6 +18,7 @@ repos.each { repo ->
               url(repo.sshUrl)
               credentials('github-ssh-key')
             }
+            branches('*/master')
           }
         }
         scriptPath('buildScripts/jenkins/pipelines/pull_request.groovy')
