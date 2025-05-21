@@ -147,3 +147,4 @@ data:
     ws-cleanup
     email-ext:latest
     ghprb:latest
+    ansicolor:1.0.4
