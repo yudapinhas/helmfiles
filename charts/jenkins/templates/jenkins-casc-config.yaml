@@ -39,6 +39,29 @@ data:
                       agent any
 
                       stages {
+                          stage('Clone Private Creds') {
+                            steps {
+                                withCredentials([sshUserPrivateKey(
+                                    credentialsId: 'github-ssh-key',
+                                    keyFileVariable: 'SSH_KEY'
+                                )]) {
+                                    script {
+                                        def status = sh(
+                                            script: '''
+                                              set -e
+                                              GIT_SSH_COMMAND="ssh -i \$SSH_KEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+                                              git clone git@github.com:yudapinhas/netgod-private.git "$JENKINS_HOME/workspace/netgod-private"
+                                            ''',
+                                            returnStatus: true
+                                        )
+                                        echo status == 0
+                                            ? '✅  netgod-private cloned successfully'
+                                            : '⚠️  netgod-private repo not reachable — continuing without it'
+                                      }
+                                  }
+                              }
+                          }
+
                           stage('Prepare DSL Scripts') {
                               steps {
                                   println 'Copying DSL scripts from mounted directory...'
