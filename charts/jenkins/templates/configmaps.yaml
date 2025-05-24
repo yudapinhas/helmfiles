@@ -148,3 +148,4 @@ data:
     email-ext:latest
     ghprb:latest
     ansicolor:1.0.4
+    kubernetes-credentials-provider:latest
