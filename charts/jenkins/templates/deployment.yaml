@@ -14,6 +14,7 @@ spec:
       labels:
         app: jenkins
     spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
@@ -88,6 +89,11 @@ spec:
               value: "/var/jenkins_home/casc_configs"
             - name: GITHUB_PAT
               value: {{ index .Values.controller.env 0 "value" | quote }}
+            - name: TF_TOKEN_app_terraform_io
+              valueFrom:
+                secretKeyRef:
+                  name: terraform-cloud-token
+                  key: text
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
