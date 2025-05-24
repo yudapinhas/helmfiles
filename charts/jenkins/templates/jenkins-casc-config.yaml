@@ -28,6 +28,19 @@ data:
                     directEntry:
                       privateKey: |
                         {{ .Values.controller.ssh.privateKey | nindent 24 }}
+              - string:
+                  scope: GLOBAL
+                  id: terraform-cloud-token
+                  description: "Terraform Cloud API token"
+                  secret: |-
+                    {{ .Values.terraformCloud.token | nindent 24 }}
+              - file:
+                  scope: GLOBAL
+                  id: "gcp-sa-json"
+                  description: "GCP Service Account JSON"
+                  fileName: "credentials.json"
+                  secretBytes: |
+                    {{ .Values.gcp.serviceAccountKey | nindent 24 }}
     jobs:
       - script: >
           pipelineJob('seed-ci-cd-pipelines') {
