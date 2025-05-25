@@ -37,6 +37,8 @@ The following values need to be provided and updated in `charts/jenkins/values.y
 - `controller.ssh.privateKey` — Your GitHub SSH private key, **must be in RSA format**, used by Jenkins to pull repositories.
 - `ngrok.authtoken` — Given for free after you create your ngrok account - https://dashboard.ngrok.com/
 - `github-pat` - Github Personal Access Token (classic). Can be generated in Developer Settings for webhook intergration. Make sure it has the following permissions: repo, admin:repo_hook, admin:org_hook
+- `terraform-cloud-token.token` - Free for use. Go to Terraform Cloud org settings --> Teams and generate team API token.
+- `gcp.serviceAccountKey` - This is the credentials.json encoded in base64 format. The provider for actual resource creation.
 
 ## 4️⃣ Prepare repositories for CI/CD:
 - The chart Retrieves Groovy DSL scripts from the repositories listed in the `repos.yaml` file.
@@ -52,31 +54,7 @@ The following values need to be provided and updated in `charts/jenkins/values.y
 - Add your own repos to charts/jenkins/jenkins-dsl/repos.groovy.
 
 ## 5️⃣ Deployment Script
-Run the script `jenkins-shared-lib/scripts/deploy_jenkins.sh` to deploy Jenkins:
-
-```bash
-#!/bin/bash
-set -e
-
-NAMESPACE="jenkins"
-ROOT_DIR=PATH/TO/CLONED/HELMFILES/HERE  # <--- EDIT TO YOUR PATH
-cd "$ROOT_DIR"
-
-echo "Creating/Updating namespace..."
-kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
-
-echo "Deploying Jenkins to namespace '$NAMESPACE'..."
-helm upgrade --install jenkins ./charts/jenkins \
-  -f ./charts/jenkins/values.yaml \
-  -f ./values/netgod-play-cluster/netgod-jenkins.yaml \
-  -n $NAMESPACE
-
-echo "Jenkins deployment initiated. Run 'kubectl get pods -n $NAMESPACE' to check status."
-
-kubectl port-forward -n jenkins svc/jenkins 8888:8080
-echo "--- Jenkins pod is now exposed on port 8080 (127.0.0.1)"
-```
-This script installes the cluster, namespace, chart. It also exposes jenkins locally in port 8080 - accesible via http://localhost:8080
+Run the Makefile `make netgod-deploy` to deploy Jenkins
 
 ---
 

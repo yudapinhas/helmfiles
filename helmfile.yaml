@@ -21,7 +21,6 @@ releases:
     namespace: kube-system
     values:
       - ./values/{{ .Environment.Name }}/netgod-namespace.yaml
-      - ./charts/namespace/values.yaml
   - name: argocd
     namespace: argocd
     chart: argocd/argo-cd
@@ -38,5 +37,5 @@ releases:
       - minikube/kube-system/netgod-namespace
     values:
       - ./values/{{ .Environment.Name }}/netgod-jenkins.yaml
-      - ./charts/jenkins/values.yaml
+      - ./secrets.yaml
 
