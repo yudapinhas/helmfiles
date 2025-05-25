@@ -1,0 +1,13 @@
+server:
+  service:
+    type: ClusterIP
+configs:
+  cm:
+    application.instanceLabelKey: argocd.argoproj.io/instance
+    admin.enabled: true
+  rbac:
+    policy.default: role:admin
+dex:
+  enabled: false
+notifications:
+  enabled: false
