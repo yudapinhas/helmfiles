@@ -32,8 +32,8 @@ git clone git@github.com:yudapinhas/helmfiles.git
 git clone git@github.com:yudapinhas/jenkins-shared-lib.git
 ```
 
-## 3️⃣ Values Configuration
-The following values need to be provided and updated in `charts/jenkins/values.yaml`:
+## 3️⃣ Secrets Configuration
+The following values need to be provided and updated in `secrets.yaml`:
 - `controller.ssh.privateKey` — Your GitHub SSH private key, **must be in RSA format**, used by Jenkins to pull repositories.
 - `ngrok.authtoken` — Given for free after you create your ngrok account - https://dashboard.ngrok.com/
 - `github-pat` - Github Personal Access Token (classic). Can be generated in Developer Settings for webhook intergration. Make sure it has the following permissions: repo, admin:repo_hook, admin:org_hook
