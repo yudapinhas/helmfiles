@@ -6,6 +6,8 @@ repositories:
     url: https://charts.bitnami.com/bitnami
   - name: ingress-nginx
     url: https://kubernetes.github.io/ingress-nginx
+  - name: argocd
+    url: https://argoproj.github.io/argo-helm
 
 helmDefaults:
   kubeContext: {{ .Environment.Values.kubeContext }}
@@ -19,8 +21,22 @@ releases:
     namespace: kube-system
     values:
       - ./values/{{ .Environment.Name }}/netgod-namespace.yaml
-  - name: jenkins-secrets
-    chart: ./charts/secrets
-    namespace: jenkins
+      - ./charts/namespace/values.yaml
+  - name: argocd
+    namespace: argocd
+    chart: argocd/argo-cd
+    version: 5.51.6
+    needs:
+      - minikube/kube-system/netgod-namespace
     values:
-      - ./values/{{ .Environment.Name }}/jenkins-secrets.yaml
+      - ./values/{{ .Environment.Name }}/argocd.yaml
+  - name: jenkins
+    chart: ./charts/jenkins
+    version: 0.1.0
+    namespace: jenkins
+    needs:
+      - minikube/kube-system/netgod-namespace
+    values:
+      - ./values/{{ .Environment.Name }}/netgod-jenkins.yaml
+      - ./charts/jenkins/values.yaml
+
