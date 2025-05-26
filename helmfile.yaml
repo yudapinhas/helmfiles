@@ -29,6 +29,7 @@ releases:
       - minikube/kube-system/netgod-namespace
     values:
       - ./values/{{ .Environment.Name }}/argocd.yaml
+      - ./secrets.yaml
   - name: jenkins
     chart: ./charts/jenkins
     version: 0.1.0

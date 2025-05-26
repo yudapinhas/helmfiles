@@ -30,7 +30,7 @@ netgod-deploy: ## Deploy Jenkins and ArgoCD via helmfile and expose services
 	wait
 
 port-forward-jenkins:
-	kubectl port-forward -n $(NAMESPACE_JENKINS) svc/jenkins 8888:8080
+	nohup kubectl port-forward -n $(NAMESPACE_JENKINS) svc/jenkins 8888:8080 > /tmp/jenkins.log 2>&1 &
 
 port-forward-argocd:
-	kubectl port-forward -n $(NAMESPACE_ARGOCD) svc/argocd-server 8443:443
+	nohup kubectl port-forward -n $(NAMESPACE_ARGOCD) svc/argocd-server 8443:443 > /tmp/argocd.log 2>&1 &

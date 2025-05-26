@@ -1,12 +1,27 @@
 server:
   service:
     type: ClusterIP
+repoServer:
+  secret:
+    sshKnownHosts: |
+      {{ .Values.sharedSecrets.sshKnownHosts | indent 4 }}
 configs:
   cm:
     application.instanceLabelKey: argocd.argoproj.io/instance
     admin.enabled: true
+    repositories: |
+      - url: git@github.com:yudapinhas/helmfiles.git
+        type: git
+        name: helmfiles
+        sshPrivateKeySecret:
+          name: argocd-ssh-creds
+          key: sshPrivateKey
   rbac:
     policy.default: role:admin
+  secret:
+    createSecret: true
+  params:
+    server.insecure: true
 dex:
   enabled: false
 notifications:
