@@ -1,0 +1,30 @@
+# never commit raw secrets
+secret.yaml
+secret*.yaml
+*.env
+.env* 
+
+.vscode/
+.idea/
+*.code-workspace
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Go
+bin/
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+#  OS noise
+.DS_Store              # macOS Finder cruft
+Thumbs.db              # Windows image cache
+desktop.ini
+
+#  Git noise
+*.orig                 # merge conflict backups
+*.rej                  # patch rejects
