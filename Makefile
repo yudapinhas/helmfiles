@@ -21,7 +21,7 @@ netgod-deploy: ## Deploy Jenkins and ArgoCD via helmfile and expose services
 	kubectl wait --for=condition=available --timeout=120s deployment/jenkins -n $(NAMESPACE_JENKINS)
 
 	@echo "ArgoCD available at https://localhost:8443"
-	@echo "Jenkins available at http://localhost:8888"
+	@echo "Jenkins available at http://localhost:8080"
 
 	@echo "Starting port-forwards..."
 	@echo "(CTRL+C to stop, or run in separate terminal)"
@@ -30,7 +30,7 @@ netgod-deploy: ## Deploy Jenkins and ArgoCD via helmfile and expose services
 	wait
 
 port-forward-jenkins:
-	nohup kubectl port-forward -n $(NAMESPACE_JENKINS) svc/jenkins 8888:8080 > /tmp/jenkins.log 2>&1 &
+	nohup kubectl port-forward -n $(NAMESPACE_JENKINS) svc/jenkins 8080:8080 > /tmp/jenkins.log 2>&1 &
 
 port-forward-argocd:
 	nohup kubectl port-forward -n $(NAMESPACE_ARGOCD) svc/argocd-server 8443:443 > /tmp/argocd.log 2>&1 &

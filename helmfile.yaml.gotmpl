@@ -23,12 +23,11 @@ releases:
       - ./values/{{ .Environment.Name }}/netgod-namespace.yaml
   - name: argocd
     namespace: argocd
-    chart: argocd/argo-cd
-    version: 5.51.6
+    chart: ./charts/argocd 
     needs:
       - minikube/kube-system/netgod-namespace
     values:
-      - ./values/{{ .Environment.Name }}/argocd.yaml
+      - ./values/{{ .Environment.Name }}/netgod-argocd.yaml
       - ./secrets.yaml
   - name: jenkins
     chart: ./charts/jenkins
@@ -39,4 +38,10 @@ releases:
     values:
       - ./values/{{ .Environment.Name }}/netgod-jenkins.yaml
       - ./secrets.yaml
+  
+  - name: argo-apps
+    namespace: argocd
+    chart: ./charts/argo-apps
+    values:
+      - values/{{ .Environment.Name }}/argo-apps.yaml
 

@@ -2,12 +2,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: jenkins
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/description: "Deploys Jenkins CI/CD system"
 spec:
   project: default
-  revisionHistoryLimit: 3
   source:
     repoURL: git@github.com:yudapinhas/helmfiles.git
     targetRevision: HEAD
@@ -15,7 +11,6 @@ spec:
     helm:
       valueFiles:
         - values/netgod-play-cluster/netgod-jenkins.yaml
-        - secrets/secrets.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: jenkins
