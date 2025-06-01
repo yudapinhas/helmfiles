@@ -1,0 +1,19 @@
+### values.yaml
+sharedSecrets: {}
+upstream:
+  controller:
+    kind: StatefulSet
+  configs:
+    cm:
+      application.instanceLabelKey: argocd.argoproj.io/instance
+      admin.enabled: true
+    rbac:
+      policy.default: role:admin
+    repositories: {}
+  server:
+    service:
+      type: ClusterIP
+  dex:
+    enabled: false
+  notifications:
+    enabled: false

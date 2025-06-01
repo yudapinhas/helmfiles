@@ -2,5 +2,5 @@
 namespaces:
   - name: jenkins
     create: true
-  - name: devops
+  - name: argocd
     create: true
