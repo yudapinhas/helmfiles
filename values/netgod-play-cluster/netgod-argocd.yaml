@@ -1,0 +1,11 @@
+### netgod-argocd.yaml
+upstream:
+  configs:
+    createSecret: true 
+    secret:
+      argocdServerAdminPassword: |
+        $2a$12$k9yFOWea1azsjdp/KJIc4Oek3y0wpH2V9x63aL0wlYCnPZaN73j8O
+      argocdServerAdminPasswordMtime: "2025-06-01T14:00:00Z"
+      extra:
+        server.secretkey: 9PwxDCf4XRsnKZqLjAuZcUXmtY2zc4T0sA3YYke6cDE=
+

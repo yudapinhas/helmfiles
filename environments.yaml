@@ -1,4 +1,4 @@
 environments:
-  local:
+  netgod-play-cluster:
     values:
-      kubeContext: minikube
+      - kubeContext: minikube
