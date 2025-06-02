@@ -10,6 +10,7 @@ repositories:
     url: https://argoproj.github.io/argo-helm
 
 helmDefaults:
+  createNamespace: false
   kubeContext: {{ .Environment.Values.kubeContext }}
   wait: false
   force: false

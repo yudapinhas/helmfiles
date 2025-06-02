@@ -69,4 +69,5 @@ If your Helm chart uses values, place them under:
 5. **Verify it's working:**
 ```kubectl get applications -n argocd```
 
-You should now see my-service listed and synced.
+- You should now see my-service listed and synced.
+- If app is missing on ArgoCD UI, refresh Apps and it will pop out.
