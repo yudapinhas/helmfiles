@@ -3,4 +3,4 @@ namespaces:
   - name: jenkins
     create: true
   - name: argocd
-    create: true
+    create: false
