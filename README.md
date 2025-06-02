@@ -25,3 +25,7 @@ Ensure you have `helmfile`, `kubectl`, and a running local Kubernetes cluster (l
 
 ```bash
 make netgod-deploy
+```
+
+ArgoCD available at https://localhost:8443
+Jenkins available at http://localhost:8080

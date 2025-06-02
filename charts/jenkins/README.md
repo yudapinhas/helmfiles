@@ -54,7 +54,8 @@ The following values need to be provided and updated in `secrets.yaml`:
 - Add your own repos to charts/jenkins/jenkins-dsl/repos.groovy.
 
 ## 5️⃣ Deployment Script
-Run the Makefile `make netgod-deploy` to deploy Jenkins
+Run helm upgrade to install the chart:
+```helm upgrade --install jenkins ./charts/jenkins --namespace jenkins -f ./values/netgod-play-cluster/netgod-jenkins.yaml -f ./secrets.yaml ```
 
 ---
 
