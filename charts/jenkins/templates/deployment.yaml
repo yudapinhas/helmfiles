@@ -125,12 +125,18 @@ spec:
                 secretKeyRef:
                   name: ngrok-secret
                   key: authtoken
+            - name: HOME
+              value: /var/ngrok
           command:
             - sh
             - -c
             - |
-              ngrok config add-authtoken "${NGROK_AUTHTOKEN}"
-              ngrok http 8080 --log=stdout --host-header=rewrite
+              mkdir -p /var/ngrok && \
+              ngrok config add-authtoken "${NGROK_AUTHTOKEN}" --config /var/ngrok/ngrok.yml && \
+              ngrok http 8080 --log=stdout --host-header=rewrite --config /var/ngrok/ngrok.yml
+          volumeMounts:
+            - name: ngrok-config
+              mountPath: /var/ngrok
           ports:
             - containerPort: 4040
 
@@ -157,3 +163,5 @@ spec:
           configMap:
             name: manage-jenkins-configmap
             defaultMode: 0755
+        - name: ngrok-config
+          emptyDir: {}
