@@ -70,4 +70,4 @@ If your Helm chart uses values, place them under:
 ```kubectl get applications -n argocd```
 
 - You should now see my-service listed and synced.
-- If app is missing on ArgoCD UI, refresh Apps and it will pop out.
+- Warning! I do not recommend to refresh an argo-app from UI will cause sync between helmfiles repo into your live cluster - it will erase the secrets values
