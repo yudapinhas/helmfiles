@@ -34,7 +34,7 @@ git clone git@github.com:yudapinhas/jenkins-shared-lib.git
 
 ## 3️⃣ Secrets Configuration
 The following values need to be provided and updated in `secrets.yaml`:
-- `controller.ssh.privateKey` — Your GitHub SSH private key, **must be in RSA format**, used by Jenkins to pull repositories.
+- `sharedSecrets.githubSshPrivateKey` — Your GitHub SSH private key, **must be in RSA format**, used by Jenkins github integration
 - `ngrok.authtoken` — Given for free after you create your ngrok account - https://dashboard.ngrok.com/
 - `github-pat` - Github Personal Access Token (classic). Can be generated in Developer Settings for webhook intergration. Make sure it has the following permissions: repo, admin:repo_hook, admin:org_hook
 - `terraform-cloud-token.token` - Free for use. Go to Terraform Cloud org settings --> Teams and generate team API token.
@@ -80,4 +80,8 @@ To enable automatic CI/CD trigger flows, you just need to run the seed-ci-cd-pip
 2. release job - Triggered first time automatically on latest merge. Triggered by merge to master.
 
 These webhooks are created by using github-pat secret.
+
+## 5️⃣ Jenkins access
+Can be accessed either by localhost:8080 or by the genereated ngrok public url. Can be found in:
+``` kubectl logs deployment/jenkins -n jenkins -c jenkins```
 

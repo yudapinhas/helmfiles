@@ -11,7 +11,7 @@ spec:
     path: charts/jenkins
     helm:
       valueFiles:
-        - values/netgod-play-cluster/netgod-jenkins.yaml
+        - ../../values/netgod-play-cluster/netgod-jenkins.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: jenkins
