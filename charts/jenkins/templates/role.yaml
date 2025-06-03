@@ -4,6 +4,8 @@ kind: Role
 metadata:
   name: {{ .Values.serviceAccount.name }}-secrets-reader
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
 rules:
 {{ toYaml .Values.rbac.rules | indent 2 }}
 {{- end }}

@@ -9,9 +9,10 @@ It manages infrastructure like ArgoCD, Jenkins, and custom namespaces using decl
 
 | Component         | Description                                      |
 |-------------------|--------------------------------------------------|
-| **Jenkins**       | Deployed via Helm chart to run CI/CD pipelines  |
+| **Jenkins**       | Deployed via Helm chart to run CI/CD for any repo|
 | **ArgoCD**        | GitOps CD engine for Kubernetes                  |
-| **Namespace Chart** | Declarative creation of `argocd`, `jenkins`, etc. |
+| **ArgoApps**      | Template onboarding of new apps into ArgoCD      |
+| **Namespace Chart** | Declarative creation of `argocd`, `jenkins`,etc|
 | **Helmfile**      | Declarative orchestration of all components      |
 
 ---
@@ -27,5 +28,7 @@ Ensure you have `helmfile`, `kubectl`, and a running local Kubernetes cluster (l
 make netgod-deploy
 ```
 
-ArgoCD available at https://localhost:8443
-Jenkins available at http://localhost:8080
+This will result with
+- ArgoCD available at https://localhost:8443
+- Jenkins available at http://localhost:8080 / ngrok public url in jenkins container logs.
+- Argo-apps deployed and managed by argoCD - verify with ```kubectl get applications -n argocd``` 

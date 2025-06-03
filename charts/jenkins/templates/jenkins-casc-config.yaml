@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: jenkins-casc-config
   namespace: jenkins
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
 data:
   jenkins.yaml: |
     jenkins:

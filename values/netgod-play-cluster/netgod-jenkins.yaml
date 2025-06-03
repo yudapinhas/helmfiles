@@ -1,3 +1,6 @@
+### values/netgod-play-cluster/netgod-jenkins.yaml
 controller:
   service:
-    nodePort: 30081
+    type: NodePort
+    port: 8080
+    nodePort: 32000
