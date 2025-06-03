@@ -4,6 +4,8 @@ kind: RoleBinding
 metadata:
   name: {{ .Values.serviceAccount.name }}-secrets-reader
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.serviceAccount.name }}

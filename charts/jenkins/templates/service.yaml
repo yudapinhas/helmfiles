@@ -1,15 +1,19 @@
----
+# charts/jenkins/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: jenkins
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.controller.service.type | default "ClusterIP" }}
   selector:
     app: jenkins
+    app.kubernetes.io/name: {{ include "jenkins.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
     - port: {{ .Values.controller.service.port | default 8080 }}
       targetPort: 8080
-        {{- if eq .Values.controller.service.type "NodePort" }}
-      nodePort: {{ .Values.controller.service.nodePort | default 30080 }}
-        {{- end }}
+{{- if eq .Values.controller.service.type "NodePort" }}
+      nodePort: {{ .Values.controller.service.nodePort | default 32000 }}
+{{- end }}

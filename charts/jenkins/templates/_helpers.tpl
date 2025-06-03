@@ -1,3 +1,4 @@
+### charts/jenkins/templates/_helpers.tpl
 {{/* vim: set filetype=mustache: */}}
 {{/*
 Expand the name of the chart.

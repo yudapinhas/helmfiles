@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: netgod-pretools-installer
   namespace: jenkins
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
 data:
   install-terraform.sh: |
     #!/bin/bash

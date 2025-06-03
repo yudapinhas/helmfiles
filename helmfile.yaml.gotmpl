@@ -44,5 +44,5 @@ releases:
     namespace: argocd
     chart: ./charts/argo-apps
     values:
-      - values/{{ .Environment.Name }}/argo-apps.yaml
+      - ./values/{{ .Environment.Name }}/argo-apps.yaml
 
