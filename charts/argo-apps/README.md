@@ -48,6 +48,9 @@ spec:
     repoURL: git@github.com:yudapinhas/helmfiles.git
     targetRevision: HEAD
     path: charts/my-service
+    helm:
+      valueFiles:
+        - ../../values/netgod-play-cluster/my-service.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: my-service
