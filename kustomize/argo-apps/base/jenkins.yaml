@@ -12,11 +12,8 @@ spec:
     helm:
       valueFiles:
         - ../../values/netgod-play-cluster/netgod-jenkins.yaml
-        - ../../secrets.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: jenkins
   syncPolicy:
-    automated:
-      prune: false
-      selfHeal: false
+    automated: {}
