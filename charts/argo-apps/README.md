@@ -16,7 +16,7 @@ helmfiles/
 │ └── argo-apps/
     │ └── base/
         │ ├── jenkins.yaml # ArgoCD App for Jenkins
-        │ ├── grafana.yaml # ArgoCD App for Grafana
+        │ ├── anotherapp.yaml # more apps
         │ └── kustomization.yaml # lists the above
 ├── values/
 │ └── netgod-play-cluster/
@@ -70,4 +70,6 @@ If your Helm chart uses values, place them under:
 ```kubectl get applications -n argocd```
 
 - You should now see my-service listed and synced.
-- Warning! I do not recommend to refresh an argo-app from UI will cause sync between helmfiles repo into your live cluster - it will erase the secrets values
+
+
+If apps are missing in UI - go to argo UI click on Sync --> Check mark netgod-play-cluster and Respect Ignore Differences --> Click Synchronize
