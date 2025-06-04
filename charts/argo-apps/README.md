@@ -7,6 +7,7 @@ Each cluster has its own root `Application` (e.g. `netgod-play-cluster`), which 
 ---
 
 ## ✅ Structure Overview
+``text
 helmfiles/
 ├── charts/
 │ └── argo-apps/ <--------- # This chart
@@ -22,6 +23,7 @@ helmfiles/
 │ └── netgod-play-cluster/
 │ ├── kustomization.yaml # points to kustomize/argo-apps/base
 │ └── argo-apps.yaml # values for the root app
+```
 
 ## 🆕 How to Onboard a New Microservice
 
