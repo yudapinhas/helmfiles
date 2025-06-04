@@ -31,6 +31,7 @@ helmfiles/
 ## 🆕 Onboarding new charts to Kuberenetes
 Can be either new microservice or platform tool like grafana, jenkins, argo worldflows, etc..
 
+
 1. **Create a new ArgoCD `Application` YAML for your service:**
 
 Example: `kustomize/argo-apps/base/my-service.yaml`
