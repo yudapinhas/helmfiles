@@ -7,23 +7,26 @@ Each cluster has its own root `Application` (e.g. `netgod-play-cluster`), which 
 ---
 
 ## ✅ Structure Overview
-``text
+
+```text
 helmfiles/
 ├── charts/
-│ └── argo-apps/ <--------- # This chart
-    │ └── templates/
-        │ └── root-app.yaml # ArgoCD Application baseline
+│   └── argo-apps/               # <--------- This chart
+│       └── templates/
+│           └── root-app.yaml    # ArgoCD Application baseline
 ├── kustomize/
-│ └── argo-apps/
-    │ └── base/
-        │ ├── jenkins.yaml # ArgoCD App for Jenkins
-        │ ├── anotherapp.yaml # more apps
-        │ └── kustomization.yaml # lists the above
+│   └── argo-apps/
+│       └── base/
+│           ├── jenkins.yaml     # ArgoCD App for Jenkins
+│           ├── anotherapp.yaml  # more apps
+│           └── kustomization.yaml # lists the above
 ├── values/
-│ └── netgod-play-cluster/
-│ ├── kustomization.yaml # points to kustomize/argo-apps/base
-│ └── argo-apps.yaml # values for the root app
+│   └── netgod-play-cluster/
+│       ├── kustomization.yaml   # points to kustomize/argo-apps/base
+│       └── argo-apps.yaml       # values for the root app
 ```
+
+---
 
 ## 🆕 How to Onboard a New Microservice
 
@@ -31,7 +34,7 @@ helmfiles/
 
 Example: `kustomize/argo-apps/base/my-service.yaml`
 
-```
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -52,26 +55,42 @@ spec:
       selfHeal: true
 ```
 
-2. **Add it to the base kustomization.yaml:**
-File: kustomize/argo-apps/base/kustomization.yaml
+2. **Add it to the base `kustomization.yaml`:**
 
-```
+File: `kustomize/argo-apps/base/kustomization.yaml`
+
+```yaml
 resources:
   - jenkins.yaml
   - my-service.yaml  # ← Add your new file here
-  ```
+```
 
-3. **Add it to the base kustomization.yaml:**
+3. **Add service-specific values (if needed):**
+
 If your Helm chart uses values, place them under:
-```values/netgod-play-cluster/my-service.yaml```
 
-4. **Add it to the base kustomization.yaml:**
-```helmfile -e netgod-play-cluster sync```
+```text
+values/netgod-play-cluster/my-service.yaml
+```
+
+4. **Sync with Helmfile:**
+
+```bash
+helmfile -e netgod-play-cluster sync
+```
 
 5. **Verify it's working:**
-```kubectl get applications -n argocd```
 
-- You should now see my-service listed and synced.
+```bash
+kubectl get applications -n argocd
+```
 
+You should now see `my-service` listed and synced.
 
-If apps are missing in UI - go to argo UI click on Sync --> Check mark netgod-play-cluster and Respect Ignore Differences --> Click Synchronize
+---
+
+If apps are missing in the ArgoCD UI:  
+➡️ Go to the Argo UI  
+➡️ Click "Sync"  
+➡️ Check **netgod-play-cluster** and **Respect Ignore Differences**  
+➡️ Click **Synchronize**
