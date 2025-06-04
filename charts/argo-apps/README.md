@@ -2,7 +2,7 @@
 
 This chart manages the **root ArgoCD Application** for a given cluster using the App-of-Apps pattern.
 
-Each cluster has its own root `Application` (e.g. `netgod-play-cluster`), which points to a `kustomization.yaml` file. That file defines all microservices (like Jenkins, Grafana, etc.) that should be managed for the cluster.
+Each cluster has its own root `Application` (e.g. `netgod-play-cluster`), which points to a `kustomization.yaml` file. That file defines all charts (like Jenkins, Grafana, etc.) that should be managed for the cluster.
 
 ---
 
@@ -96,3 +96,4 @@ If apps are missing in the ArgoCD UI:
 ➡️ Click "Sync"  
 ➡️ Check **netgod-play-cluster** and **Respect Ignore Differences**  
 ➡️ Click **Synchronize**
+➡️ my-service chart will now show up
