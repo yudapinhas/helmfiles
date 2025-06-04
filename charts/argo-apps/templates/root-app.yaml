@@ -14,9 +14,7 @@ spec:
     namespace: argocd
     server: {{ .Values.cluster.apiServer | default "https://kubernetes.default.svc" }}
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: false
+    automated: {}
   ignoreDifferences:
   - group: ""
     kind: Secret
