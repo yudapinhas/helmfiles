@@ -17,12 +17,30 @@ spec:
     server: https://kubernetes.default.svc
     namespace: jenkins
     ignoreDifferences:
-    - group: ""          # core/v1
+    - group: ""
       kind: Secret
+      name: ngrok-secret
       namespace: jenkins
       jsonPointers:
-        - /data
-        - /stringData
+      - /data/authtoken
+    - group: ""
+      kind: Secret
+      name: terraform-cloud-token
+      namespace: jenkins
+      jsonPointers:
+      - /data/text
+    - group: ""
+      kind: Secret
+      name: github-ssh-key
+      namespace: jenkins
+      jsonPointers:
+      - /data/id_rsa
+    - group: ""
+      kind: Secret
+      name: gcp-sa-json
+      namespace: jenkins
+      jsonPointers:
+      - /data/data
   syncPolicy:
     automated:
       prune: false
