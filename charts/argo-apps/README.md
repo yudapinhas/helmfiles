@@ -1,40 +1,52 @@
-# ArgoCD App-of-Apps — Microservice Onboarding Guide
+# 🚀 ArgoCD App-of-Apps — Microservice Onboarding Guide
 
-This chart manages the **root ArgoCD Application** for a given cluster using the App-of-Apps pattern.
+This repository implements the **App-of-Apps** pattern using ArgoCD to declaratively manage all microservices and platform components (like Jenkins, Grafana, Argo Workflows, etc.) for a given Kubernetes cluster.
 
-Each cluster has its own root `Application` (e.g. `netgod-play-cluster`), which points to a `kustomization.yaml` file. That file defines all charts (like Jenkins, Grafana, etc.) that should be managed for the cluster.
+Each **cluster** has its own **root `Application`**, which points to a **Kustomize overlay** located under `values/<cluster-name>/kustomization.yaml`. This enables **per-cluster customization** while reusing a shared base configuration.
 
 ---
 
-## ✅ Structure Overview
+## 📦 Repository Structure
 
-```text
+```
 helmfiles/
 ├── charts/
-│   └── argo-apps/               # <--------- This chart
+│   └── argo-apps/
 │       └── templates/
-│           └── root-app.yaml    # ArgoCD Application baseline
+│           └── root-app.yaml             # Root ArgoCD Application
 ├── kustomize/
 │   └── argo-apps/
-│       └── base/
-│           ├── jenkins.yaml     # ArgoCD App for Jenkins
-│           ├── anotherapp.yaml  # more apps
-│           └── kustomization.yaml # lists the above
+│       ├── base/
+│       │   ├── jenkins.yaml              # ArgoCD Application for Jenkins
+│       │   ├── anotherapp.yaml           # ArgoCD Application for other tools
+│       │   └── kustomization.yaml        # Lists all base apps
 ├── values/
-│   └── netgod-play-cluster/
-│       ├── kustomization.yaml   # points to kustomize/argo-apps/base
-│       └── argo-apps.yaml       # values for the root app
+│   └── netgod-play-cluster/             # Example environment (overlay)
+│       ├── kustomization.yaml           # Points to kustomize/argo-apps/base
+│       └── argo-apps.yaml               # Values for the root-app
 ```
 
 ---
 
-## 🆕 Onboarding new charts to Kuberenetes
-Can be either new microservice or platform tool like grafana, jenkins, argo worldflows, etc..
+## ✨ Why Kustomize?
 
+We use **Kustomize overlays** to enable per-cluster customization of the applications declared in the shared base.
 
-1. **Create a new ArgoCD `Application` YAML for your service:**
+This allows:
+- Reusing the same app definitions (`jenkins.yaml`, etc.)
+- Applying **environment-specific patches** (replicas, labels, annotations, etc.)
+- Managing the whole environment declaratively via a single `kustomization.yaml` per cluster
 
-Example: `kustomize/argo-apps/base/my-service.yaml`
+For example, you can patch Jenkins to use 2 replicas in `netgod-play-cluster`, while keeping the base at 1.
+
+---
+
+## 🆕 How to Onboard a New Microservice or Platform Tool
+
+### 1. Create a new ArgoCD `Application` manifest
+
+Add a file under:  
+`kustomize/argo-apps/base/my-service.yaml`
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -60,43 +72,50 @@ spec:
       selfHeal: true
 ```
 
-2. **Add it to the base `kustomization.yaml`:**
+---
 
-File: `kustomize/argo-apps/base/kustomization.yaml`
+### 2. Add the new app to the base `kustomization.yaml`
+
+Edit `kustomize/argo-apps/base/kustomization.yaml`:
 
 ```yaml
 resources:
   - jenkins.yaml
-  - my-service.yaml  # ← Add your new file here
+  - my-service.yaml   # ← Add your app here
 ```
 
-3. **Add service-specific values (if needed):**
+---
 
-If your Helm chart uses values, place them under:
+### 3. Add environment-specific values (if needed)
 
-```text
+If your chart uses values, add them under:
+
+```
 values/netgod-play-cluster/my-service.yaml
 ```
 
-4. **Sync with Helmfile:**
+---
+
+### 4. Sync via Helmfile
 
 ```bash
 helmfile -e netgod-play-cluster sync
 ```
 
-5. **Verify it's working:**
+---
+
+### 5. Verify in ArgoCD UI
 
 ```bash
 kubectl get applications -n argocd
 ```
 
-You should now see `my-service` listed and synced.
+Or in the ArgoCD Web UI:
+
+- Find the root app (e.g., `netgod-play-cluster`)
+- Click **"Sync"**
+- Enable **"Respect Ignore Differences"**
+- Click **"Synchronize"**
+- Your new service (`my-service`) should now appear
 
 ---
-
-If apps are missing in the ArgoCD UI:  
-➡️ Go to the Argo UI  
-➡️ Click "Sync"  
-➡️ Check **netgod-play-cluster** and **Respect Ignore Differences**  
-➡️ Click **Synchronize**
-➡️ my-service chart will now show up

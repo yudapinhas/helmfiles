@@ -1,8 +1,8 @@
-### root-app.yaml
+### root-app.yaml (app-of-apps)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .Values.cluster.name }}
+  name: app-of-apps
   namespace: argocd
 spec:
   project: default
