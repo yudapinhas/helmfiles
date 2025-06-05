@@ -4,34 +4,52 @@ metadata:
   name: netgod-pretools-installer
   namespace: jenkins
   labels:
-    {{- include "jenkins.labels" . | nindent 4 }}
+    app.kubernetes.io/name: jenkins
+    app.kubernetes.io/instance: jenkins
 data:
-  install-terraform.sh: |
+  install-pretools.sh: |
     #!/bin/bash
     set -eux
 
-    # Create a directory for tools in jenkins home
+    # 1) Create a directory for tools in Jenkins home
     TOOLS_DIR="/var/jenkins_home/tools/bin"
     mkdir -p "$TOOLS_DIR"
 
-    # Check if terraform is already installed
-    if [ -f "$TOOLS_DIR/terraform" ]; then
-        echo "Terraform is already installed"
-        "$TOOLS_DIR/terraform" version
-        exit 0
+    # If Terraform is already present, skip reinstall
+    if [ -x "$TOOLS_DIR/terraform" ]; then
+      echo "✅ Terraform already installed at $TOOLS_DIR/terraform"
+    else
+      echo "⏳ Installing Terraform…"
+      TERRAFORM_VERSION="1.11.3"
+      TERRAFORM_ARCHIVE="terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+      curl -fsSL -o "/tmp/${TERRAFORM_ARCHIVE}" \
+        "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${TERRAFORM_ARCHIVE}"
+      unzip -o "/tmp/${TERRAFORM_ARCHIVE}" -d "$TOOLS_DIR"
+      chmod +x "$TOOLS_DIR/terraform"
+      rm "/tmp/${TERRAFORM_ARCHIVE}"
+
+      echo "✅ Installed Terraform ${TERRAFORM_VERSION}"
     fi
 
-    # Install terraform (no apt-get, no root needed)
-    TERRAFORM_VERSION="1.11.3"
-    ARCHIVE="terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+    # If Terragrunt is already present, skip reinstall
+    if [ -x "$TOOLS_DIR/terragrunt" ]; then
+      echo "✅ Terragrunt already installed at $TOOLS_DIR/terragrunt"
+    else
+      echo "⏳ Installing Terragrunt…"
+      TERRAGRUNT_VERSION="v0.56.2"
+      # The GitHub release asset is named "terragrunt_linux_amd64"
+      TG_BINARY="terragrunt_linux_amd64"
 
-    curl -Lo "/tmp/${ARCHIVE}" "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${ARCHIVE}"
-    unzip "/tmp/${ARCHIVE}" -d "$TOOLS_DIR"
-    chmod +x "$TOOLS_DIR/terraform"
+      curl -fsSL -o "/tmp/${TG_BINARY}" \
+        "https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/${TG_BINARY}"
 
-    # Clean up
-    rm "/tmp/${ARCHIVE}"
+      chmod +x "/tmp/${TG_BINARY}"
+      mv "/tmp/${TG_BINARY}" "$TOOLS_DIR/terragrunt"
 
+      echo "✅ Installed Terragrunt ${TERRAGRUNT_VERSION}"
+    fi
+
+    # Persist the tools path for any downstream process
     export PATH="$TOOLS_DIR:$PATH"
-
-    echo "netgod-pretools have been installed successfully!"
+    echo "✅ netgod-pretools (Terraform + Terragrunt) have been installed successfully!"
