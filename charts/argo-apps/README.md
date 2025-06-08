@@ -1,4 +1,4 @@
-# 🚀 ArgoCD App-of-Apps — Microservice Onboarding Guide
+# 🚀 ArgoCD App-of-Apps — App Onboarding Guide
 
 This repository implements the **App-of-Apps** pattern using ArgoCD to declaratively manage all microservices and platform components (like Jenkins, Grafana, Argo Workflows, etc.) for a given Kubernetes cluster.
 
