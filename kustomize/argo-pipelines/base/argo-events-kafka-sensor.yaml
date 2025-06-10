@@ -1,0 +1,53 @@
+### argo-events-kafka-sensor.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: kafka-etl-sensor
+  namespace: argo-events
+spec:
+  dependencies:
+    - name: kafka-message
+      eventSourceName: kafka-events
+      eventName: etl-topic
+  triggers:
+    - template:
+        name: kafka-etl-workflow-trigger
+        argoWorkflow:
+          group: argoproj.io
+          version: v1
+          resource: workflows
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1
+              kind: Workflow
+              metadata:
+                generateName: kafka-etl-triggered-
+              spec:
+                entrypoint: main
+                templates:
+                  - name: main
+                    steps:
+                      - - name: process-message
+                          template: kafka-to-sql-step
+                  - name: kafka-to-sql-step
+                    container:
+                      image: kafka-to-sql-consumer:latest
+                      command: ["python"]
+                      args: ["consumer.py"]
+                      env:
+                        - name: KAFKA_BOOTSTRAP_SERVERS
+                          value: kafka.kafka.svc.cluster.local:9092
+                        - name: KAFKA_TOPIC
+                          value: etl_topic
+                        - name: POSTGRES_HOST
+                          value: postgresql.postgresql.svc.cluster.local
+                        - name: POSTGRES_DB
+                          value: etldb
+                        - name: POSTGRES_USER
+                          value: postgres
+                        - name: POSTGRES_PASSWORD
+                          valueFrom:
+                            secretKeyRef:
+                              name: postgres-secret
+                              key: password
