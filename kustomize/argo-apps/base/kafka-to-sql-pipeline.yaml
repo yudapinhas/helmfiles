@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kafka-to-sql-pipeline
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:yudapinhas/helmfiles.git'
+    targetRevision: main
+    path: charts/pipelines/kafka-to-sql-etl
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: pipelines
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
