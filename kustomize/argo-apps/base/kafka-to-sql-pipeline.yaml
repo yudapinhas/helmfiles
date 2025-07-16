@@ -6,13 +6,15 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'git@github.com:yudapinhas/helmfiles.git'
-    targetRevision: main
-    path: charts/pipelines/kafka-to-sql-etl
+    repoURL: git@github.com:yudapinhas/helmfiles.git
+    targetRevision: argowf/kafka_etl_pipeline
+    path: kustomize/argo-pipelines/base
   destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: pipelines
+    server: https://kubernetes.default.svc
+    namespace: argo-workflows
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
