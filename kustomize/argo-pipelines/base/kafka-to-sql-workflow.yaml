@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1
 kind: Workflow
 metadata:
-  generateName: kafka-to-sql-etl-
+  name: kafka-to-sql-etl
 spec:
   entrypoint: main
   templates:
