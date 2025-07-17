@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
   name: kafka-etl-sensor
-  namespace: argo-events
+  namespace: argo-workflows
 spec:
   dependencies:
     - name: kafka-message

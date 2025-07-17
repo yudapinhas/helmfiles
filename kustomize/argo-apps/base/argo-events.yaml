@@ -13,4 +13,4 @@ spec:
       values: {}
   destination:
     server: https://kubernetes.default.svc
-    namespace: argo-events
+    namespace: argo-workflows
