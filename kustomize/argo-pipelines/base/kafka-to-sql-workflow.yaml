@@ -1,5 +1,5 @@
 ### kafka-to-sql-workflow.yaml
-apiVersion: argoproj.io/v1
+apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   name: kafka-to-sql-etl
