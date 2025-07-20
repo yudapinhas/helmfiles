@@ -14,13 +14,37 @@ consumer = KafkaConsumer(
     bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS]
 )
 
+def ensure_table():
+    conn = psycopg2.connect(
+        host=POSTGRES_HOST,
+        database=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD
+    )
+    cur = conn.cursor()
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS events (
+        id SERIAL PRIMARY KEY,
+        value TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+    conn.commit()
+    conn.close()
+
 def write_to_db(msg):
-    conn = psycopg2.connect(host=POSTGRES_HOST, database=POSTGRES_DB,
-                            user=POSTGRES_USER, password=POSTGRES_PASSWORD)
+    conn = psycopg2.connect(
+        host=POSTGRES_HOST,
+        database=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD
+    )
     cur = conn.cursor()
     cur.execute("INSERT INTO events (value) VALUES (%s)", (msg.value.decode(),))
     conn.commit()
     conn.close()
+
+ensure_table()
 
 for msg in consumer:
     print(f"Received: {msg.value}")

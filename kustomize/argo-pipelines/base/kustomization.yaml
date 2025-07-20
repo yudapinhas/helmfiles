@@ -12,6 +12,6 @@ secretGenerator:
   - name: postgresql
     namespace: argo-workflows
     literals:
-      - postgresql-password=admin
+      - postgresql-password=postgresql
 generatorOptions:
   disableNameSuffixHash: true

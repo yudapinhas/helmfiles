@@ -3,3 +3,13 @@ auth:
 kraft:
   enabled: true
   clusterId: 3zYbccbPAacbQrTiajX7Wy
+
+extraEnvVars:
+  - name: KAFKA_CFG_ADVERTISED_LISTENERS
+    value: PLAINTEXT://kafka.argo-workflows.svc.cluster.local:9092
+  - name: KAFKA_CFG_LISTENERS
+    value: PLAINTEXT://0.0.0.0:9092
+
+configurationOverrides:
+  advertised.listeners: PLAINTEXT://kafka.argo-workflows.svc.cluster.local:9092
+  listeners: PLAINTEXT://0.0.0.0:9092
