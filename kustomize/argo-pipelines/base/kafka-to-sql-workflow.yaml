@@ -14,6 +14,7 @@ spec:
   - name: kafka-to-sql-step
     container:
       image: kafka-to-sql-consumer:latest
+      imagePullPolicy: Never
       command: ["python"]
       args: ["consumer.py"]
       env:
