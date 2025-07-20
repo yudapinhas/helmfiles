@@ -1,7 +1,13 @@
 auth:
   postgresPassword: "postgres"
 
-  primary:
+primary:
+  securityContext:
+    enabled: false
+
+  volumePermissions:
+    enabled: true
+
   initdb:
     scripts:
       init-etldb.sql: |
