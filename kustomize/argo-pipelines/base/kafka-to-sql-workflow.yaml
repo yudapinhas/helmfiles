@@ -4,7 +4,7 @@ kind: Workflow
 metadata:
   name: kafka-to-sql-etl
 spec:
-  serviceAccountName: argo-workflow
+  serviceAccountName: argo-workflows-sa
   entrypoint: main
   templates:
   - name: main

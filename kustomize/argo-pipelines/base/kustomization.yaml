@@ -5,6 +5,7 @@ resources:
   - argo-events-kafka-gateway.yaml
   - argo-events-kafka-sensor.yaml
   - kafka-to-sql-workflow.yaml
+  - manifests/
 
 secretGenerator:
   - name: postgresql
