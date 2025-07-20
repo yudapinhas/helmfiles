@@ -1,0 +1,4 @@
+cluster:
+  name: netgod-play-cluster
+  apiServer: https://kubernetes.default.svc
+  revision: HEAD
