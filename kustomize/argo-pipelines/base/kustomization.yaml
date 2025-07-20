@@ -5,3 +5,11 @@ resources:
   - argo-events-kafka-gateway.yaml
   - argo-events-kafka-sensor.yaml
   - kafka-to-sql-workflow.yaml
+
+secretGenerator:
+  - name: postgresql
+    namespace: argo-workflows
+    literals:
+      - postgresql-password=admin
+generatorOptions:
+  disableNameSuffixHash: true
