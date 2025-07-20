@@ -19,11 +19,11 @@ spec:
       args: ["consumer.py"]
       env:
       - name: KAFKA_BOOTSTRAP_SERVERS
-        value: kafka.kafka.svc.cluster.local:9092
+        value: kafka.argo-workflows.svc.cluster.local:9092
       - name: KAFKA_TOPIC
         value: etl_topic
       - name: POSTGRES_HOST
-        value: postgresql.postgresql.svc.cluster.local
+        value: postgresql.argo-workflows.svc.cluster.local
       - name: POSTGRES_DB
         value: etldb
       - name: POSTGRES_USER
