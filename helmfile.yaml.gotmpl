@@ -75,8 +75,8 @@ releases:
     needs:
       - minikube/kube-system/netgod-namespace
     values:
-      - auth:
-          postgresPassword: postgres
+      - ./values/{{ .Environment.Name }}/postgresql.yaml
+
     labels:
       group: argo-workflows
 
