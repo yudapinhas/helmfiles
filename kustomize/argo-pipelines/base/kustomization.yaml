@@ -9,7 +9,7 @@ resources:
   - manifests/
 
 secretGenerator:
-  - name: postgresql
+  - name: postgresql-secret
     namespace: argo-workflows
     literals:
       - postgresql-password=postgresql
