@@ -1,6 +1,5 @@
 auth:
   enabled: false
-  postgresPassword: "postgresql"
 kraft:
   enabled: true
   clusterId: 3zYbccbPAacbQrTiajX7Wy
