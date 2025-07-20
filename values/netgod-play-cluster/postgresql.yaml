@@ -1,0 +1,8 @@
+auth:
+  postgresPassword: "postgres"
+
+  primary:
+  initdb:
+    scripts:
+      init-etldb.sql: |
+        CREATE DATABASE etldb;
