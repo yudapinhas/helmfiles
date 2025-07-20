@@ -1,9 +1,10 @@
 auth:
   enabled: false
+  postgresPassword: "postgresql"
 kraft:
   enabled: true
   clusterId: 3zYbccbPAacbQrTiajX7Wy
-
+  
 extraEnvVars:
   - name: KAFKA_CFG_ADVERTISED_LISTENERS
     value: PLAINTEXT://kafka.argo-workflows.svc.cluster.local:9092
