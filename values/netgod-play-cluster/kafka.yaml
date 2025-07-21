@@ -1,0 +1,23 @@
+auth:
+  enabled: true
+  clientProtocol: sasl_plaintext
+  interBrokerProtocol: sasl_plaintext
+  controllerProtocol: sasl_plaintext
+  sasl:
+    mechanism: plain
+    clientUsers:
+      - etluser
+  existingSecret: kafka-user-password
+
+kraft:
+  enabled: true
+  clusterId: 3zYbccbPAacbQrTiajX7Wy
+controller:
+  enabled: true
+  service:
+    headless:
+      publishNotReadyAddresses: true
+
+configurationOverrides:
+  advertised.listeners: PLAINTEXT://kafka.argo-workflows.svc.cluster.local:9092
+  listeners: PLAINTEXT://:9092

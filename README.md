@@ -25,10 +25,15 @@ Ensure you have `helmfile`, `kubectl`, and a running local Kubernetes cluster (l
 2. Deploy everything using:
 
 ```bash
-make netgod-deploy
+make core-deploy
 ```
 
 This will result with
 - ArgoCD available at https://localhost:8443
 - Jenkins available at http://localhost:8080 / ngrok public url in jenkins container logs.
 - Argo-apps deployed and managed by argoCD - verify with ```kubectl get applications -n argocd``` 
+
+## ▶ For ArgoWF and data etl pipelines run
+```bash
+make argoworkflows-deploy
+```

@@ -1,0 +1,5 @@
+# kustomize\argo-pipelines\base\manifests\kustomization.yaml
+
+resources:
+  - argo-workflow-serviceaccount.yaml
+  - argo-workflow-rolebinding.yaml

@@ -1,0 +1,14 @@
+### argo-events-kafka-gateway.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: kafka-events
+  namespace: argo-workflows
+spec:
+  kafka:
+    etl-topic:
+      url: kafka.kafka.svc.cluster.local:9092
+      topic: etl_topic
+      consumerGroup: argo-events-consumer
+      tls:
+        enabled: false

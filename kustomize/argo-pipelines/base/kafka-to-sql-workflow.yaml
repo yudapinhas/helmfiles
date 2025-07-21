@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: kafka-to-sql-etl
+spec:
+  serviceAccountName: argo-workflows-sa
+  entrypoint: main
+
+  templates:
+    # ────────────────────────── DAG root ──────────────────────────
+  - name: main
+    steps:
+    - - name: process-message
+        template: kafka-to-sql-step
+  - name: kafka-to-sql-step
+    container:
+      image: kafka-to-sql-consumer:latest
+      imagePullPolicy: Never
+      command: ["python", "consumer.py"]
+
+      env:
+      - name: KAFKA_BOOTSTRAP_SERVERS
+        value: kafka:9092
+      - name: KAFKA_TOPIC
+        value: etl_topic
+      - name: KAFKA_SASL_USERNAME
+        value: etluser
+      - name: KAFKA_SASL_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: kafka-user-passwords
+            key: client-passwords
+
+      - name: POSTGRES_HOST
+        value: postgresql
+      - name: POSTGRES_DB
+        value: etldb
+      - name: POSTGRES_USER
+        value: postgres
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: postgresql
+            key: postgres-password
+
+      - name: KAFKA_CLIENT_CONFIG
+        value: /etc/kafka/client.properties
+
+
+

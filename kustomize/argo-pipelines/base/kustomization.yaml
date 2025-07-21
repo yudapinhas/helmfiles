@@ -1,0 +1,9 @@
+# kustomize\argo-pipelines\base\kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - argo-events-kafka-gateway.yaml
+  - argo-events-kafka-sensor.yaml
+  - kafka-to-sql-workflow.yaml
+  - manifests/

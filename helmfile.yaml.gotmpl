@@ -16,12 +16,15 @@ helmDefaults:
   force: false
 
 releases:
+### core releases
   - name: netgod-namespace
     chart: ./charts/namespace
     version: 0.1.0
     namespace: kube-system
     values:
       - ./values/{{ .Environment.Name }}/netgod-namespace.yaml
+    labels:
+      group: core
   - name: argocd
     namespace: argocd
     chart: ./charts/argocd 
@@ -30,6 +33,8 @@ releases:
     values:
       - ./values/{{ .Environment.Name }}/netgod-argocd.yaml
       - ./secrets.yaml
+    labels:
+      group: core
   - name: jenkins
     chart: ./charts/jenkins
     version: 0.1.0
@@ -39,10 +44,70 @@ releases:
     values:
       - ./values/{{ .Environment.Name }}/netgod-jenkins.yaml
       - ./secrets.yaml
-  
+    labels:
+      group: core
   - name: argo-apps
     namespace: argocd
     chart: ./charts/argo-apps
+    needs:
+      - minikube/kube-system/netgod-namespace
     values:
       - ./values/{{ .Environment.Name }}/argo-apps.yaml
+    labels:
+      group: core
+
+### argo-workflows label group
+  - name: kafka
+    namespace: argo-workflows
+    chart: bitnami/kafka
+    version: 32.2.15
+    needs:
+      - minikube/kube-system/netgod-namespace
+    values:
+      - ./values/{{ .Environment.Name }}/kafka.yaml
+    labels:
+      group: argo-workflows
+
+  - name: postgresql
+    namespace: argo-workflows
+    chart: bitnami/postgresql
+    version: 15.2.5
+    needs:
+      - minikube/kube-system/netgod-namespace
+    values:
+      - ./values/{{ .Environment.Name }}/postgresql.yaml
+
+    labels:
+      group: argo-workflows
+
+  - name: argo-workflows
+    namespace: argo-workflows
+    chart: argocd/argo-workflows
+    version: 0.41.1
+    values:
+      - server:
+          serviceAccount:
+            create: true
+            name: argo-dev-sa
+          extraArgs:
+            - --auth-mode=server
+      - rbac:
+          create: true
+          clusterRoles:
+            - name: argo-dev-admin
+              rules:
+                - apiGroups: ["*"]
+                  resources: ["*"]
+                  verbs: ["*"]
+    labels:
+      group: argo-workflows
+
+  - name: argo-events
+    namespace: argo-workflows
+    chart: argocd/argo-events
+    version: 2.3.0
+    needs:
+      - minikube/kube-system/netgod-namespace
+    labels:
+      group: argo-workflows
 
