@@ -3,4 +3,3 @@ kind: Kustomization
 resources:
   - jenkins.yaml
   - kafka-to-sql-pipeline.yaml
-  - /manifests/

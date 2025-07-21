@@ -7,6 +7,7 @@ spec:
   entrypoint: main
 
   templates:
+    # ────────────────────────── DAG root ──────────────────────────
   - name: main
     steps:
     - - name: process-message
@@ -22,21 +23,12 @@ spec:
         value: kafka:9092
       - name: KAFKA_TOPIC
         value: etl_topic
-
-      - name: KAFKA_SECURITY_PROTOCOL
-        value: SASL_PLAINTEXT
-      - name: KAFKA_SASL_MECHANISM
-        value: PLAIN
-
       - name: KAFKA_SASL_USERNAME
-        valueFrom:
-          secretKeyRef:
-            name: kafka-kafka
-            key: client-users
+        value: etluser
       - name: KAFKA_SASL_PASSWORD
         valueFrom:
           secretKeyRef:
-            name: kafka-kafka
+            name: kafka-user-passwords
             key: client-passwords
 
       - name: POSTGRES_HOST
@@ -54,15 +46,5 @@ spec:
       - name: KAFKA_CLIENT_CONFIG
         value: /etc/kafka/client.properties
 
-      volumeMounts:
-      - name: kafka-client-config
-        mountPath: /etc/kafka
-        readOnly: true
 
-    volumes:
-    - name: kafka-client-config
-      secret:
-        secretName: kafka-kafka
-        items:
-        - key: client.properties
-          path: client.properties
+
