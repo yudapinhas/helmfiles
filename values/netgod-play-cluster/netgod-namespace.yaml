@@ -4,5 +4,6 @@ namespaces:
     create: true
   - name: argocd
     create: true
+  - name: monitoring
   - name: argo-workflows
     create: true
