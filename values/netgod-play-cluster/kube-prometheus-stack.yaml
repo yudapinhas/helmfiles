@@ -11,6 +11,8 @@ prometheus:
       requests:
         memory: 400Mi
         cpu: 100m
+    maximumStartupDurationSeconds: 300
+
 
 alertmanager:
   alertmanagerSpec:
@@ -18,3 +20,6 @@ alertmanager:
       requests:
         memory: 200Mi
         cpu: 100m
+
+kubeEtcd:
+  enabled: false

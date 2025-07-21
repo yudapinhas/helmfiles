@@ -4,3 +4,5 @@ namespaces:
     create: true
   - name: argocd
     create: true
+  - name: monitoring
+    create: true
