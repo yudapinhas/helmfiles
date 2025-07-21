@@ -8,6 +8,8 @@ repositories:
     url: https://kubernetes.github.io/ingress-nginx
   - name: argocd
     url: https://argoproj.github.io/argo-helm
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
 
 helmDefaults:
   createNamespace: false
@@ -111,3 +113,13 @@ releases:
     labels:
       group: argo-workflows
 
+- name: kube-prometheus-stack
+    namespace: monitoring
+    chart: prometheus-community/kube-prometheus-stack
+    version: 58.5.0
+    needs:
+      - minikube/kube-system/netgod-namespace
+    values:
+      - ./values/{{ .Environment.Name }}/kube-prometheus-stack.yaml
+    labels:
+      group: monitoring
