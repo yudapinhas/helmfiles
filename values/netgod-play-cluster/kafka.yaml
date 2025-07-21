@@ -1,4 +1,5 @@
 auth:
+<<<<<<< HEAD
   enabled: true
   clientProtocol: sasl_plaintext
   interBrokerProtocol: sasl_plaintext
@@ -21,3 +22,9 @@ controller:
 configurationOverrides:
   advertised.listeners: PLAINTEXT://kafka.argo-workflows.svc.cluster.local:9092
   listeners: PLAINTEXT://:9092
+=======
+  enabled: false
+kraft:
+  enabled: true
+  clusterId: 3zYbccbPAacbQrTiajX7Wy
+>>>>>>> f28c183 (rebase from master with monitoring)

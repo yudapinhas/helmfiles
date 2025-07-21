@@ -2,10 +2,17 @@ ROOT_DIR := $(shell pwd)
 NAMESPACE_JENKINS := jenkins
 NAMESPACE_ARGOCD := argocd
 <<<<<<< HEAD
+<<<<<<< HEAD
 NAMESPACE_ARGOWORKFLOWS := argo-workflows
 =======
 NAMESPACE_MONITORING := monitoring
 >>>>>>> a0cd23f (new/prometheus-grafana)
+=======
+NAMESPACE_MONITORING := monitoring
+=======
+NAMESPACE_ARGOWORKFLOWS := argo-workflows
+>>>>>>> 3cc2f2a (fix kustomize workflows)
+>>>>>>> f28c183 (rebase from master with monitoring)
 ENV := netgod-play-cluster
 
 .PHONY: all core-deploy jenkins argocd port-forward-jenkins port-forward-argocd
@@ -73,3 +80,15 @@ port-forward-kafka: ### broker available at kafka.argo-workflows.svc.cluster.loc
 	kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:4.0.0-debian-12-r7 --namespace $(NAMESPACE_ARGOWORKFLOWS) --command -- sleep infinity
 port-forward-monitoring:
 	nohup kubectl port-forward -n $(NAMESPACE_MONITORING) svc/kube-prometheus-stack-grafana 3000:80 > /tmp/kube-monitoring.log 2>&1 &
+<<<<<<< HEAD
+=======
+	
+port-forward-argoworkflows:
+	nohup kubectl port-forward -n $(NAMESPACE_ARGOWORKFLOWS) svc/argo-workflows-server 2746:2746 > /tmp/argoworkflows.log 2>&1 &
+
+port-forward-postgresql:
+	nohup kubectl port-forward -n $(NAMESPACE_ARGOWORKFLOWS) svc/postgresql 2746:2746 > /tmp/postgresql.log 2>&1 &
+
+port-forward-kafka: ### broker available at kafka.argo-workflows.svc.cluster.local:9092
+	kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:4.0.0-debian-12-r7 --namespace $(NAMESPACE_ARGOWORKFLOWS) --command -- sleep infinity
+>>>>>>> f28c183 (rebase from master with monitoring)
