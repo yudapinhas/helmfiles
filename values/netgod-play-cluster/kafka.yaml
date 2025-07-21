@@ -7,8 +7,8 @@ auth:
     mechanism: plain
     clientUsers:
       - etluser
-    clientPasswords:
-      - etlpwd123
+  existingSecret: kafka-user-password
+
 kraft:
   enabled: true
   clusterId: 3zYbccbPAacbQrTiajX7Wy
@@ -17,7 +17,7 @@ controller:
   service:
     headless:
       publishNotReadyAddresses: true
-  
+
 configurationOverrides:
   advertised.listeners: PLAINTEXT://kafka.argo-workflows.svc.cluster.local:9092
   listeners: PLAINTEXT://:9092
