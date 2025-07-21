@@ -114,12 +114,12 @@ releases:
       group: argo-workflows
 
   - name: kube-prometheus-stack
-      namespace: monitoring
-      chart: prometheus-community/kube-prometheus-stack
-      version: 58.5.0
-      needs:
-        - minikube/kube-system/netgod-namespace
-      values:
-        - ./values/{{ .Environment.Name }}/kube-prometheus-stack.yaml
-      labels:
-        group: monitoring
+    namespace: monitoring
+    chart: prometheus-community/kube-prometheus-stack
+    version: 58.5.0
+    needs:
+      - minikube/kube-system/netgod-namespace
+    values:
+      - ./values/{{ .Environment.Name }}/kube-prometheus-stack.yaml
+    labels:
+      group: monitoring
