@@ -1,0 +1,25 @@
+## values/netgod-play-cluster/kube-prometheus-stack.yaml
+grafana:
+  adminPassword: prom-operator
+  service:
+    type: ClusterIP
+
+prometheus:
+  prometheusSpec:
+    retention: 12h
+    resources:
+      requests:
+        memory: 400Mi
+        cpu: 100m
+    maximumStartupDurationSeconds: 300
+
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        memory: 200Mi
+        cpu: 100m
+
+kubeEtcd:
+  enabled: false

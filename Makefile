@@ -1,6 +1,7 @@
 ROOT_DIR := $(shell pwd)
 NAMESPACE_JENKINS := jenkins
 NAMESPACE_ARGOCD := argocd
+NAMESPACE_MONITORING := monitoring
 ENV := netgod-play-cluster
 
 .PHONY: all netgod-deploy jenkins argocd port-forward-jenkins port-forward-argocd
@@ -34,3 +35,6 @@ port-forward-jenkins:
 
 port-forward-argocd:
 	nohup kubectl port-forward -n $(NAMESPACE_ARGOCD) svc/argocd-server 8443:443 > /tmp/argocd.log 2>&1 &
+
+port-forward-monitoring:
+	nohup kubectl port-forward -n $(NAMESPACE_MONITORING) svc/kube-prometheus-stack-grafana 3000:80 > /tmp/kube-monitoring.log 2>&1 &
